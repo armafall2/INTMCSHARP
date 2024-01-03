@@ -9,12 +9,12 @@ namespace Serie_I
     /*
      * (a) (1 point) Donner le nombre de blocs pour un niveau j donné, 1 ≤ j ≤ N
      *  -> 2j-1
-     *  
+     *
      * (b) (1/2 point) Quel est le nombre total de blocs au niveau N ?
      * -> N^2
      * (c) (1/2 point) Quelle est la position du sommet de la pyramide ?
      * -> N caractère a partir du bord gauche de l'écran
-     * 
+     *
      * (1 point) Déterminer les formules établissant gauche(j), droite(j)
      * -> gauche = N - J
      * -> droite = ?
@@ -49,12 +49,10 @@ namespace Serie_I
                     {
                         symbole = "-";
                     }
-
                     else if (isSmooth && i % 2 != 0 || !isSmooth)
                     {
                         symbole = "+" ;
                     }
-                   
 
                     Console.Write(symbole);
                 }
@@ -63,6 +61,5 @@ namespace Serie_I
             }
             Console.WriteLine();
         }
-
     }
 }
