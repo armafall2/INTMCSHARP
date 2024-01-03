@@ -24,9 +24,9 @@ namespace Serie_I
     {
         public static void PyramidConstruction(int n, bool isSmooth)
         {
-            if(n == 0)
+            if(n <= 0)
             {
-                Console.WriteLine("Pyramide a 0");
+                Console.WriteLine("Pyramide a 0 ou négative");
             }
 
             // Boucle principale en fonction du nombre en paramètre
@@ -43,16 +43,18 @@ namespace Serie_I
 
                 for (int bloc = 0; bloc < i * 2 - 1; bloc++)
                 {
-                    string symbole;
+                    string symbole ="";
 
-                    if (isSmooth || i % 2 == 0)
+                    if (isSmooth && i % 2 == 0)
                     {
-                        symbole = "+";
+                        symbole = "-";
                     }
-                    else
+
+                    else if (isSmooth && i % 2 != 0 || !isSmooth)
                     {
-                        symbole = "-" ;
+                        symbole = "+" ;
                     }
+                   
 
                     Console.Write(symbole);
                 }

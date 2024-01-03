@@ -50,6 +50,7 @@ namespace Serie_I
             Pyramid.PyramidConstruction(10, true);
             Pyramid.PyramidConstruction(10, false);
             Pyramid.PyramidConstruction(04, true);
+            Pyramid.PyramidConstruction(-6, true);
             Pyramid.PyramidConstruction(0, true);
             #endregion
 
