@@ -47,11 +47,11 @@ namespace Serie_I
 
                     if (isSmooth || i % 2 == 0)
                     {
-                        symbole = "X";
+                        symbole = "+";
                     }
                     else
                     {
-                        symbole = "O" ;
+                        symbole = "-" ;
                     }
 
                     Console.Write(symbole);
