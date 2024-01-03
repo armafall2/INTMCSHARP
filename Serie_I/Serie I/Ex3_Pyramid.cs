@@ -57,7 +57,7 @@ namespace Serie_I
                     Console.Write(symbole);
                 }
 
-                Console.WriteLine();
+                Console.WriteLine(); 
             }
             Console.WriteLine();
         }
