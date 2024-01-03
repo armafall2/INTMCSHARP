@@ -19,14 +19,35 @@ namespace Serie_II
         public static void AskQuestions(Qcm[] qcms)
         {
 
+            
+            int   score = 0;
+            
+           foreach(Qcm qcm in qcms)
+           {
+
+                if (QcmValidity(qcm)) { 
+
+                    score += AskQuestion(qcm);
+
+                    }
+                else
+                {
+                    Console.WriteLine("Question invalide");
+                }
+
+           }
+            
+           Console.WriteLine("Votre Score est : " + score);
+        }
+
+        public static int AskQuestion(Qcm qcm)
+        {
             int       i = 1;
             int reponse = 0;
             int     len = 0;
-            int   score = 0;
 
-           foreach(Qcm qcm in qcms)
-           {
-                Console.WriteLine(qcm.Question);
+            Console.WriteLine(qcm.Question);
+                
                 i = 1;
                 foreach(string element in qcm.Answers)
                 {
@@ -43,30 +64,30 @@ namespace Serie_II
                   reponse = Convert.ToInt32(Console.ReadLine());
                 } while (reponse < 1 || reponse > len);
 
-                if(qcm.Solution == reponse)
-                {
-                    score += qcm.Weight;
-                }
-                else if(qcm.Solution != reponse)
-                {
-                    score -= qcm.Weight;
-                }
-
-           }
-            
-           Console.WriteLine("Votre Score est : " + score);
-        }
-
-        public static int AskQuestion(Qcm qcm)
-        {
-            //TODO
+            if(reponse == qcm.Solution)
+            {
+                return qcm.Weight;
+            }
+            else if(reponse != qcm.Solution)
+            {
+                return (qcm.Weight) * (- 1);
+            }
+        
             return -1;
         }
 
         public static bool QcmValidity(Qcm qcm)
         {
-            //TODO
-            return false;
+            if(qcm.Weight <= 0)
+            {
+                return false;
+            }
+            else if((qcm.Solution < 0 || qcm.Solution >= qcm.Answers.Length))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
