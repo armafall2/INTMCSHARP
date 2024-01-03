@@ -10,27 +10,69 @@ namespace Serie_II
     {
         public static int[][] BuildingMatrix(int[] leftVector, int[] rightVector)
         {
-            //TODO
-            return new int[0][];
+        int[][] Matrice = new int[3][];
+        for (int i = 0; i < 3; i++)
+        {
+            Matrice[i] = new int[3];
         }
 
-        public static int[][] Addition(int[][] leftMatrix, int[][] rightMatrix)
+        for (int i = 0; i < 3; i++)
         {
-            //TODO
-            return new int[0][];
+            Matrice[i][0] = leftVector[i];
+            Matrice[i][1] = rightVector[i];
         }
+        return Matrice;
+        }
+
+
+       public static int[][] Addition(int[][] leftMatrix, int[][] rightMatrix)
+       {
+       int[][] Matrice = new int[3][];
+       for (int i = 0; i < 3; i++)
+       {
+           Matrice[i] = new int[3];
+           for (int j = 0; j < 2; j++) 
+           {
+               Matrice[i][j] = leftMatrix[i][j] + rightMatrix[i][j];
+           }
+       }
+
+       return Matrice;
+       }
 
         public static int[][] Substraction(int[][] leftMatrix, int[][] rightMatrix)
         {
-            //TODO
-            return new int[0][];
+            int[][] Matrice = new int[3][];
+            for (int i = 0; i < 3; i++)
+            {
+                Matrice[i] = new int[3];
+                for (int j = 0; j < 2; j++)
+                {
+                    Matrice[i][j] = leftMatrix[i][j] - rightMatrix[i][j];
+                }
+            }
+            return Matrice;
         }
 
         public static int[][] Multiplication(int[][] leftMatrix, int[][] rightMatrix)
         {
-            //TODO
-            return new int[0][];
-        }
+            int leftRows = leftMatrix.Length;
+            int leftCols = leftMatrix[0].Length;
+            int rightCols = rightMatrix[0].Length;
+
+           if (leftCols != rightMatrix.Length)   
+               int[][] resultMatrix = new int[leftRows][];
+
+               for (int i = 0; i < leftRows; i++)
+                {
+                    resultMatrix[i] = new int[rightCols];
+                    for (int j = 0; j < rightCols; j++)
+                        for (int k = 0; k < leftCols; k++)
+                            resultMatrix[i][j] += leftMatrix[i][k] * rightMatrix[k][j];
+                }
+
+    return resultMatrix;
+}
 
         public static void DisplayMatrix(int[][] matrix)
         {
@@ -44,6 +86,7 @@ namespace Serie_II
                 s += Environment.NewLine;
             }
             Console.WriteLine(s);
-        }
+      }
+        
     }
 }

@@ -16,7 +16,8 @@ namespace Serie_II
             Console.WriteLine("-----------------------------------");
 
             int[] arr = { 1, -5, 10, -3, 0, 4, 2, -7 };
-            int val = 2;
+            int val = 4;
+            Array.Sort(arr);
             Console.WriteLine(Search.LinearSearch(arr, val));
             Array.Sort(arr);
             Console.WriteLine(Search.BinarySearch(arr, val));
@@ -120,8 +121,8 @@ namespace Serie_II
                 }
             };
             Quiz.AskQuestions(qcms);
- */           #endregion
-
+              #endregion
+ */
             // Keep the console window open
             Console.WriteLine("----------------------");
             Console.WriteLine("Press any key to exit.");
