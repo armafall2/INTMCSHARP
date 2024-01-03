@@ -117,7 +117,7 @@ namespace Serie_II
                         "Macron",
                     },
                     Solution = 2,
-                    Weight = -1,
+                    Weight = 1,
                 }
             };
             Quiz.AskQuestions(qcms);

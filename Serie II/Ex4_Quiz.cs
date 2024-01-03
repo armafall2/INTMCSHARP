@@ -18,7 +18,43 @@ namespace Serie_II
     {
         public static void AskQuestions(Qcm[] qcms)
         {
-            //TODO
+
+            int       i = 1;
+            int reponse = 0;
+            int     len = 0;
+            int   score = 0;
+
+           foreach(Qcm qcm in qcms)
+           {
+                Console.WriteLine(qcm.Question);
+                i = 1;
+                foreach(string element in qcm.Answers)
+                {
+                    Console.Write(" " + i + " : " + element + " ");
+                    i++;
+                }
+                
+                Console.WriteLine(" ");
+                len = qcm.Answers.Length;
+
+                do
+                {
+                Console.Write("Votre Réponse : ");
+                  reponse = Convert.ToInt32(Console.ReadLine());
+                } while (reponse < 1 || reponse > len);
+
+                if(qcm.Solution == reponse)
+                {
+                    score += qcm.Weight;
+                }
+                else if(qcm.Solution != reponse)
+                {
+                    score -= qcm.Weight;
+                }
+
+           }
+            
+           Console.WriteLine("Votre Score est : " + score);
         }
 
         public static int AskQuestion(Qcm qcm)
