@@ -60,7 +60,7 @@ namespace Serie_II
             int leftCols = leftMatrix[0].Length;
             int rightCols = rightMatrix[0].Length;
 
-           if (leftCols != rightMatrix.Length)   
+           
                int[][] resultMatrix = new int[leftRows][];
 
                for (int i = 0; i < leftRows; i++)

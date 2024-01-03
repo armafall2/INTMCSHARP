@@ -8,7 +8,10 @@ namespace Serie_II
 {
     public struct Qcm
     {
-        //TODO
+        public string   Question { get; set; }
+        public string[] Answers  { get; set; }
+        public int      Solution { get; set; }
+        public int        Weight { get; set; }
     }
 
     public static class Quiz
