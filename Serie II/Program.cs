@@ -80,7 +80,7 @@ namespace Serie_II
             Console.WriteLine("Exercice IV - Questionnaire à choix multiple");
             Console.WriteLine("--------------------------------------------");
 
-            Qcm[] qcms = new Qcm[3]
+            Qcm[] qcms = new Qcm[4]
             {
                 new Qcm
                 {
@@ -117,6 +117,20 @@ namespace Serie_II
                         "Macron",
                     },
                     Solution = 2,
+                    Weight = 1,
+                },
+                new Qcm
+                {
+                    Question = "Quel est la meilleure Warframe ?",
+                    Answers = new string[]
+                    {
+                        "Kullervo",
+                        "Mesa",
+                        "Rhino",
+                        "Qorvex",
+                        "Protea",
+                    },
+                    Solution = 1,
                     Weight = 1,
                 }
             };
