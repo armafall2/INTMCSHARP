@@ -47,20 +47,13 @@ namespace Serie_III
             List<int[]> result;
             long qsCumul = 0;
             long isCumul = 0;
-
+            long isVariance = 0;
+            long qsVariance = 0;
             for (int i = 0; i < count; i++)
             {
                 result = ArraysGenerator(size);
-
-                Stopwatch qs = Stopwatch.StartNew();
-                QuickSort(result[0], 0, result[0].Length - 1);
-                qs.Stop();
-                qsCumul += qs.ElapsedMilliseconds;
-
-                Stopwatch isw = Stopwatch.StartNew();
-                InsertionSort(result[1]);
-                isw.Stop();
-                isCumul += isw.ElapsedMilliseconds;
+                qsCumul += UseQuickSort(result[1]);
+                isCumul += UseInsertionSort(result[0]);
             }
 
             SortData resultCalc = new SortData();
@@ -68,7 +61,15 @@ namespace Serie_III
             resultCalc.InsertionMean = isCumul / count;
             resultCalc.QuickMean = qsCumul / count;
 
-            
+            for (int i = 0; i < count; i++)
+            {
+               result = ArraysGenerator(size);
+               isVariance = (long)Math.Pow(UseInsertionSort(result[0]) - resultCalc.InsertionMean, 2);
+               qsVariance = (long)Math.Pow(UseQuickSort(result[1])     - resultCalc.QuickMean,     2);
+            }
+
+            resultCalc.InsertionStd = (long)Math.Sqrt(isVariance);
+            resultCalc.QuickMean    = (long)Math.Sqrt(qsVariance);
 
             return resultCalc;
         }
