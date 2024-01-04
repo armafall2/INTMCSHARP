@@ -64,15 +64,19 @@ namespace Serie_II
                   reponse = Convert.ToInt32(Console.ReadLine());
                 } while (reponse < 1 || reponse > len);
 
-            if(reponse == qcm.Solution)
+            //Console.WriteLine("Saisie : " + qcm.Answers[reponse - 1] + " Réponse : " + qcm.Answers[qcm.Solution] );
+
+            if(qcm.Answers[reponse - 1] == qcm.Answers[qcm.Solution])
             {
+                
                 return qcm.Weight;
             }
-            else if(reponse != qcm.Solution)
+            else if(qcm.Answers[reponse - 1] != qcm.Answers[qcm.Solution])
             {
-                return (qcm.Weight) * (- 1);
+               
+                return 0;
             }
-        
+            
             return -1;
         }
 
