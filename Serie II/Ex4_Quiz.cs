@@ -30,7 +30,7 @@ namespace Serie_II
                     score += AskQuestion(qcm);
 
                     }
-                else
+                else 
                 {
                     Console.WriteLine("Question invalide");
                 }
