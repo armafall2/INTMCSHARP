@@ -53,7 +53,7 @@ namespace Serie_IV
             Console.WriteLine("Exercice III - Liste des contacts téléphoniques");
             Console.WriteLine("-----------------------------------------------");
 
-            int numbers = 0123456789;
+            int numbers = 123456789;
             string[] names = new string[] { "aaron", "abby", "abdul", "abe", "abel", "abigail", "abraham", "adam", "adan", "adele", "adolfo", "adolph", "adrian" };
 
             PhoneBook pb = new PhoneBook();
@@ -62,6 +62,7 @@ namespace Serie_IV
                 pb.AddPhoneNumber("0" + numbers.ToString(), names[i]);
                 numbers++;
             }
+
             pb.PhoneContact("0123456789");
             pb.DeletePhoneNumber("0123456789");
             pb.DisplayPhoneBook();
