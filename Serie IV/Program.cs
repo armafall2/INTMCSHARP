@@ -78,6 +78,10 @@ namespace Serie_IV
             bs.AddBusinessMeeting(new DateTime(2021, 4, 21, 14, 0, 0), new TimeSpan(1, 0, 0));
             bs.AddBusinessMeeting(new DateTime(2021, 4, 21, 15, 0, 0), new TimeSpan(1, 0, 0));
             bs.AddBusinessMeeting(new DateTime(2021, 4, 21, 14, 30, 0), new TimeSpan(1, 0, 0));
+            bs.AddBusinessMeeting(new DateTime(2021, 4, 21, 14, 30, 0), new TimeSpan(4, 0, 0));
+            bs.AddBusinessMeeting(new DateTime(2021, 4, 21, 14, 30, 0), new TimeSpan(4, 0, 0));
+            bs.DisplayMeetings();
+            bs.ClearMeetingPeriod(new DateTime(2021, 4, 1), new DateTime(2021, 4, 30));
             bs.DisplayMeetings();
             #endregion
 
