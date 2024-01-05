@@ -14,8 +14,8 @@ namespace Serie_III
             string path = Directory.GetCurrentDirectory();
             string output = path + @"\class.csv";
 
-            string[] matieres = {"Mathématiques", "Français", "Physique", "Chimie", "Histoire", "Anglais", "Biologie", "Géographie", "Informatique", "Économie", "Arts plastiques", "Éducation physique", "Musique", "Technologie", "Philosophie"};
-            string[] noms = { "John Doe", "Jane Smith", "Bob Johnson", "Alice Williams", "David Brown", "Emily Davis", "Michael Wilson", "Olivia Lee", "Daniel Miller", "Sophia Taylor", "Christopher Moore", "Isabella Garcia", "Matthew Anderson", "Ava Martinez", "William Jones" };
+            string[] matieres = {"Combat Sabre Laser", "Tir Blaster", "Vol", "Chimie", "Tank", "Stratégie", "Destruction de forêt", "Tir Deagle", "Vol de Pain", "Tir arbalete", "Double Saut", "Force", "Addition to his collection", "Lancer de grenade", "Science"};
+            string[] noms = { "Master Chief", "Dr Mundo", "Glory Draven", "Albrecht Entrati", "Captain Vor", "Tesla", "Ryan Reinolds", "Jean Valjean", "Cosette", "Daryl Dixon", "Sly Cooper", "Ratchet", "Clank", "Darth Vador", "General Grievous", "Compte Dooku" };
 
             List<string> res = new List<string>();
 
@@ -41,6 +41,7 @@ namespace Serie_III
             File.WriteAllLines(output, res);
 
         }
+
         public static void SchoolMeans(string input, string output)
         {
             try
