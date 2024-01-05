@@ -16,10 +16,13 @@ namespace Serie_III
             Console.WriteLine("Exercice I - Conseil de classe");
             Console.WriteLine("------------------------------");
 
+            ClassCouncil.GenerateCsv(200);
+
             string path = Directory.GetCurrentDirectory();
             string input = path + @"\class.csv";
             string output = path + @"\result.csv";
             ClassCouncil.SchoolMeans(input, output);
+
             #endregion
 
             #region Exercice II - Performances des tris
@@ -31,7 +34,7 @@ namespace Serie_III
             Console.WriteLine(SortingPerformance.UseInsertionSort(a) + " ms");
             Console.WriteLine(SortingPerformance.UseQuickSort(a) + " ms");
 
-            List<int> sizes = new List<int> { 2000, 5000, 10000, 20000, 50000, 100000};
+            List<int> sizes = new List<int> { 2000, 5000, 10000, 20000, 50000};
             int count = 10;
             //List<int> sizes = new List<int> { 2000, 5000, 10000, 20000, 50000, 100000 };
             //int count = 50;
