@@ -9,6 +9,14 @@ namespace Serie_III
 {
     public static class ClassCouncil
     {
+
+        /// <summary>
+        /// Genère un CSV avec des noms "alétoire" (provenant d'un tableau)
+        /// Des noms de matière avec le même principe
+        /// et une note aleatoire entre 0 et 20
+        /// | nb est le nombre de ligne du fichier a générer
+        /// </summary>
+        /// <param name="nb"></param>
         public static void GenerateCsv(int nb)
         {
             string path = Directory.GetCurrentDirectory();
