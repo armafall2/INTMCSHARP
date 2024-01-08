@@ -65,7 +65,6 @@ namespace Percolation
         {
             Percolation tmp = new Percolation(size);
             double count = 0;
-            tmp.Open(0,0);
 
             while (!tmp.Percolate())
             {
