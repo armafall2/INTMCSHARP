@@ -116,8 +116,36 @@ namespace Serie_IV
         }
         public string EfficientMorseTranslation(string code)
         {
-            return String.Empty;
+            StringBuilder translation = new StringBuilder();
+
+            string[] words = code.Split(new string[] { PointWord }, StringSplitOptions.None);
+
+            foreach (string word in words)
+            {
+                string[] letters = word.Split(new string[] { PointLetter }, StringSplitOptions.None);
+
+                foreach (string letter in letters)
+                {
+                    if (!string.IsNullOrEmpty(letter))
+                    {
+                        if (letter.StartsWith(Point) || letter.EndsWith(Point))
+                        {
+                            string trimmedLetter = letter.Trim(Point.ToCharArray());
+                            translation.Append(TraduireLettre(trimmedLetter));
+                        }
+                        else
+                        {
+                            translation.Append(TraduireLettre(letter));
+                        }
+                    }
+                }
+
+                translation.Append(' ');
+            }
+
+            return translation.ToString().Trim();
         }
+
         public string MorseEncryption(string sentence)
         {
             StringBuilder morseBuilder = new StringBuilder();
