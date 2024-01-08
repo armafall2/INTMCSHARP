@@ -145,7 +145,6 @@ namespace Serie_IV
 
             return translation.ToString().Trim();
         }
-
         public string MorseEncryption(string sentence)
         {
             StringBuilder morseBuilder = new StringBuilder();
