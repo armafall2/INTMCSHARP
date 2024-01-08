@@ -12,7 +12,17 @@ namespace Serie_IV
 
         public bool IsEmpty()
         {
-            return schedule.Count == 0;
+            bool isEmpty = false;
+            
+                if(schedule.Count == 0)
+            {
+                isEmpty = true;
+            }
+            else
+            {
+                isEmpty = false;
+            }
+            return isEmpty;
         }
 
         public void SetRangeOfDates(DateTime begin, DateTime end)
