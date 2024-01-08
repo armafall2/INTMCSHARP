@@ -147,7 +147,7 @@ namespace Percolation
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur : {ex.Message} {row} {col}");
+                //Console.WriteLine($"Erreur : {ex.Message} {row} {col}");
             }
         }
 

@@ -38,6 +38,15 @@ namespace Percolation
 
             Console.WriteLine("La percolation a-t-elle lieu ? " + percolateResult);
 
+
+            PercolationSimulation simulation = new PercolationSimulation();
+            PclData result = simulation.MeanPercolationValue(15, 50);
+
+            // Afficher les résultats
+            Console.WriteLine($"Moyenne: {result.Mean}");
+            Console.WriteLine($"Écart-type: {result.StandardDeviation}");
+            Console.WriteLine($"Fraction: {result.Fraction}");
+
             // Keep the console window open
             Console.WriteLine("----------------------");
             Console.WriteLine("Press any key to exit.");
