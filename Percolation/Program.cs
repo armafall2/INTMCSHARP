@@ -29,9 +29,12 @@ namespace Percolation
             percolation.Open(5, 2);
             percolation.Open(6, 2);
             percolation.Open(7, 2);
+            percolation.Open(110, 2);
+
 
             bool percolateResult = percolation.Percolate();
-            percolation.PrintGrid();
+
+            //percolation.PrintGrid();
 
             Console.WriteLine("La percolation a-t-elle lieu ? " + percolateResult);
 
@@ -42,8 +45,15 @@ namespace Percolation
             #region Réponse Question
             #region Question x
             #endregion
-            #region Question 1
-
+            #region Exercice 2
+                #region 3.
+                    #region Question B
+                        //Avec les deux boucles foreach, la complexité de Open() est de O(1) dans le pire des cas
+                    #endregion
+                    #region Question C
+                        //Le nombre de voisin reste le même peut importe le nombre de case (4 : haut, bas, gauche, droite)
+                    #endregion
+                #endregion
             #endregion
             #endregion
 

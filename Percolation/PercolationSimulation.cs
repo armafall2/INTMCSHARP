@@ -24,6 +24,7 @@ namespace Percolation
 
     public class PercolationSimulation
     {
+
         public PclData MeanPercolationValue(int size, int t)
         {
             return new PclData();

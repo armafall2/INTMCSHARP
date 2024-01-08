@@ -31,8 +31,6 @@ namespace Percolation
                 Console.WriteLine($"Erreur : {ex.Message}");
             }
         }
-
-
         public bool IsOpen(int i, int j)
         {
             if (ControleInterval(i, j) == true)
@@ -93,37 +91,66 @@ namespace Percolation
 
 
 
-        private List<KeyValuePair<int, int>> CloseNeighbors(int i, int j)
+        private List<KeyValuePair<int, int>> CloseNeighbors(int row, int col)
         {
-            return null;
+            List<KeyValuePair<int, int>> neighbors = new List<KeyValuePair<int, int>>();
+            int[] rowOffsets = { -1, 1, 0, 0 };
+            int[] colOffsets = { 0, 0, -1, 1 };
+
+            for (int k = 0; k < rowOffsets.Length; k++)
+            {
+                int newRow = row + rowOffsets[k];
+                int newCol = col + colOffsets[k];
+                if (IsValidCoordinate(newRow, newCol))
+                {
+                    neighbors.Add(new KeyValuePair<int, int>(newRow, newCol));
+                }
+            }
+
+            return neighbors;
         }
 
-        public void Open(int i, int j)
+        private bool IsValidCoordinate(int row, int col)
+        {
+            return row >= 0 && row < _size && col >= 0 && col < _size;
+        }
+
+
+        public void Open(int row, int col)
         {
             try
             {
-                if (i < 0 || i >= _size || j < 0 || j >= _size)
+                if (IsOpen(row, col))
                 {
-                    throw new ArgumentOutOfRangeException("Indices hors limites de la grille.");
+                    throw new InvalidOperationException($"Case déjà ouverte");
                 }
-
-                if (IsOpen(i, j))
+                _open[row, col] = true;
+                foreach (var neighbor in CloseNeighbors(row, col))
                 {
-                    throw new InvalidOperationException("Case déjà ouverte.");
+                    int neighborRow = neighbor.Key;
+                    int neighborCol = neighbor.Value;
+
+                    if (IsFull(neighborRow, neighborCol))
+                    {
+                        _open[neighborRow, neighborCol] = true;
+                    }
                 }
-
-                _open[i, j] = true;
+                if (IsFull(row, col))
+                {
+                    foreach (var neighbor in CloseNeighbors(row, col))
+                    {
+                        int neighborRow = neighbor.Key;
+                        int neighborCol = neighbor.Value;
+                        _full[neighborRow, neighborCol] = true;
+                    }
+                }
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Erreur : {ex.Message}");
+                Console.WriteLine($"Erreur : {ex.Message} {row} {col}");
             }
-            catch (InvalidOperationException ex)
-            {
-                Console.WriteLine($"Erreur : {ex.Message} : {i + 1} {j + 1}");
-            }
-
         }
+
 
         public void PrintGrid()
         {
@@ -143,14 +170,13 @@ namespace Percolation
             {
                 if (i < 0 || i >= _size || j < 0 || j >= _size)
                 {
-                    throw new ArgumentOutOfRangeException("Indices hors limites de la grille.");
+                   throw new ArgumentOutOfRangeException("Indices hors limites de la grille.");
                 }
 
                 return true;
             }
             catch (ArgumentOutOfRangeException ex)
             {
-                Console.WriteLine($"Erreur : {ex.Message}");
                 return false;
             }
         }
