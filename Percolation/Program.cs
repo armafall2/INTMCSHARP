@@ -55,9 +55,8 @@ namespace Percolation
             Console.WriteLine("----------------------");
             Console.WriteLine("Press any key to exit.");
             Console.ReadKey();
+
             #region Réponse Question
-            #region Question x
-            #endregion
             #region Exercice 2
                 #region 3.
                     #region Question B

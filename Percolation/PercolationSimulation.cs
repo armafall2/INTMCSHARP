@@ -62,6 +62,7 @@ namespace Percolation
             }
 
             mean = res.Average();
+
             double sumSquaredDifferences = res.Sum(value => Math.Pow(value - mean, 2));
 
             double variance = sumSquaredDifferences / res.Count;

@@ -32,7 +32,6 @@ namespace Percolation
             }
         }
 
-
         public bool IsOpen(int i, int j)
         {
             if (ControleInterval(i, j) == true)
@@ -42,7 +41,6 @@ namespace Percolation
             return false;
 
         }
-
 
         private bool IsFull(int i, int j)
         {
@@ -91,8 +89,6 @@ namespace Percolation
             PropagateWater(i, j + 1, tempFull); // droite
         }
 
-
-
         private List<KeyValuePair<int, int>> CloseNeighbors(int row, int col)
         {
             List<KeyValuePair<int, int>> neighbors = new List<KeyValuePair<int, int>>();
@@ -116,7 +112,6 @@ namespace Percolation
         {
             return row >= 0 && row < _size && col >= 0 && col < _size;
         }
-
 
         public void Open(int row, int col)
         {
