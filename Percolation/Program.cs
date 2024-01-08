@@ -31,18 +31,22 @@ namespace Percolation
             percolation.Open(7, 2);
             percolation.Open(110, 2);
 
-
             bool percolateResult = percolation.Percolate();
-
-            //percolation.PrintGrid();
+            percolation.PrintGrid();
 
             Console.WriteLine("La percolation a-t-elle lieu ? " + percolateResult);
 
 
             PercolationSimulation simulation = new PercolationSimulation();
-            PclData result = simulation.MeanPercolationValue(15, 50);
+            Console.Write("Taille ? ");
+            int taille = Convert.ToInt32(Console.ReadLine());
+            Console.Write("Nombre de repetition ? : ");
+            int repet = Convert.ToInt32(Console.ReadLine());
 
+
+            PclData result = simulation.MeanPercolationValue(taille,repet);
             // Afficher les résultats
+            Console.WriteLine($"Résultat avec : size : {result.s} t : {result.t} en {result.temps} ms");
             Console.WriteLine($"Moyenne: {result.Mean}");
             Console.WriteLine($"Écart-type: {result.StandardDeviation}");
             Console.WriteLine($"Fraction: {result.Fraction}");

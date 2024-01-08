@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Percolation
@@ -18,6 +19,12 @@ namespace Percolation
         /// Fraction
         /// </summary>
         public double Fraction { get; set; }
+
+        public int s { get; set; }
+
+        public int t { get; set; }
+
+        public string temps { get; set; }
     }
 
     public class PercolationSimulation
@@ -28,9 +35,20 @@ namespace Percolation
         {
             random = new Random();
         }
-
+        /// <summary>
+        /// Simule t fois une simulation de taille size * size
+        /// et calcule la moyenne
+        /// l'écart type 
+        /// et la fraction (écart type / moyenne)
+        /// </summary>
+        /// <param name="size"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
         public PclData MeanPercolationValue(int size, int t)
         {
+            Stopwatch chrono = new Stopwatch();
+            chrono.Start();
+
             double mean = 0;
             double standardDeviation = 0;
             double fraction = 0;
@@ -52,15 +70,25 @@ namespace Percolation
 
             fraction = standardDeviation / mean;
 
+            chrono.Stop();
+
             return new PclData
             {
                 Mean = mean,
                 StandardDeviation = standardDeviation,
-                Fraction = fraction
+                Fraction = fraction,
+                s = size,
+                t = t,
+                temps = chrono.ElapsedMilliseconds.ToString(),
             };
 
         }
-
+        /// <summary>
+        /// 1 simulation de taille "size" qui est une grille de size * size
+        /// Et qui selectionne des cases que le programme ouvre au hasard des cases
+        /// </summary>
+        /// <param name="size"></param>
+        /// <returns></returns>
         public double PercolationValue(int size)
         {
             Percolation tmp = new Percolation(size);
@@ -68,13 +96,18 @@ namespace Percolation
 
             while (!tmp.Percolate())
             {
-                int rowIndex = random.Next(0, size + 1);
-                int colIndex = random.Next(0, size + 1);
+                int rowIndex = random.Next(0, size);
+                int colIndex = random.Next(0, size);
 
-                tmp.Open(rowIndex, colIndex);
-                count++;
+                // Vérifier si la case est déjà ouverte
+                if (!tmp.IsOpen(rowIndex, colIndex))
+                {
+                    tmp.Open(rowIndex, colIndex);
+                    count++;
+                }
             }
             return (count / (size * size));
         }
+
     }
 }

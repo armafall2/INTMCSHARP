@@ -31,6 +31,8 @@ namespace Percolation
                 Console.WriteLine($"Erreur : {ex.Message}");
             }
         }
+
+
         public bool IsOpen(int i, int j)
         {
             if (ControleInterval(i, j) == true)
@@ -147,7 +149,7 @@ namespace Percolation
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"Erreur : {ex.Message} {row} {col}");
+                Console.WriteLine($"Erreur : {ex.Message} {row} {col}");
             }
         }
 
