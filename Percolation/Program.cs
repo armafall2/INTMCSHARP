@@ -38,13 +38,15 @@ namespace Percolation
 
 
             PercolationSimulation simulation = new PercolationSimulation();
-            Console.Write("Taille ? ");
+            /*Console.Write("Taille ? ");
             int taille = Convert.ToInt32(Console.ReadLine());
             Console.Write("Nombre de repetition ? : ");
             int repet = Convert.ToInt32(Console.ReadLine());
-
-
             PclData result = simulation.MeanPercolationValue(taille,repet);
+            */
+
+            PclData result = simulation.MeanPercolationValue(15,50);
+
             // Afficher les résultats
             Console.WriteLine($"Résultat avec : size : {result.s} t : {result.t} en {result.temps} ms");
             Console.WriteLine($"Moyenne: {result.Mean}");
