@@ -11,8 +11,14 @@ namespace ProjetPart1
         static void Main(string[] args)
         {
             CompteBancaire test = new CompteBancaire();
+            Random randsolde = new Random();
 
-            test.Identifiant = 1;
+
+            for(int i = 0; i < 10; i++)
+            {
+                test.CreateBankAccount(i+1, randsolde.Next());
+            }
+           
            
 
             Console.WriteLine(test.ToString());
