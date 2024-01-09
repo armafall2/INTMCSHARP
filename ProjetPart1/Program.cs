@@ -52,6 +52,8 @@ namespace ProjetPart1
 
             test9.AffUneTransac(test9);
 
+
+            // Verifier Fonctionement la (IsPossible, DoTransac)
             test2.DoTransac(test2.GetTransactionById(1), gestionComptes);
 
             Console.WriteLine(gestionComptes.ToString());
