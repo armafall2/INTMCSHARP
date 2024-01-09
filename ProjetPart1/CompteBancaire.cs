@@ -15,47 +15,62 @@ namespace ProjetPart1
             comptes = new Dictionary<int, decimal>();
         }
 
-        public void CreateBankAccount(int identifiant, decimal montantInitial)
+        public bool CreateBankAccount(int identifiant, decimal montantInitial)
         {
+            bool res = false;
+
             if (!comptes.ContainsKey(identifiant))
             {
                 comptes.Add(identifiant, montantInitial);
+                res = true;
             }
             else
             {
+                res = false;
                 throw new Exception($"Le compte avec l'identifiant {identifiant} existe déjà.");
             }
+            return res;
         }
 
-        public void Deposit(int identifiant, decimal montant)
+        public bool Deposit(int identifiant, decimal montant)
         {
+            bool res = false;
             if (comptes.ContainsKey(identifiant))
             {
                 comptes[identifiant] += montant;
+                res = true;
             }
             else
             {
+                res = false;
                throw new Exception($"Le compte avec l'identifiant {identifiant} n'existe pas.");
             }
+            return res;
         }
 
-        public void Withdraw(int identifiant, decimal montant)
+        public bool Withdraw(int identifiant, decimal montant)
         {
+            bool res = false;
             if (comptes.ContainsKey(identifiant))
             {
+                
                 if (comptes[identifiant] >= montant)
                 {
                     comptes[identifiant] -= montant;
+                    res = true;
                 }
                 else
                 {
+                    res = false;
                     throw new Exception("Solde insuffisant.");
                 }
             }
             else
             {
+                res = false;
                 throw new Exception($"Le compte avec l'identifiant {identifiant} n'existe pas.");
             }
+            return res;
         }
 
         public override string ToString()
