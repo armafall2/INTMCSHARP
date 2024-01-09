@@ -64,7 +64,9 @@ namespace Serie_IV
                 pb.AddPhoneNumber("0" + numbers.ToString(), names[i]);
                 numbers++;
             }
-
+            pb.AddPhoneNumber("0666666666", "aaron");
+            pb.AddPhoneNumber("0666666666", "aaron");
+            pb.AddPhoneNumber("0666666667", "aaron");
             pb.DisplayPhoneBook();
             pb.PhoneContact("0123456789");
             pb.PhoneContact("0123456802");
