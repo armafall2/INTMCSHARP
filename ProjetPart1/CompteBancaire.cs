@@ -1,76 +1,97 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ProjetPart1
 {
     class CompteBancaire
     {
-        private Dictionary<int, decimal> comptes;
+        public int Identifiant { get; set; }
+        public decimal Solde { get; set; }
 
         public CompteBancaire()
         {
-            comptes = new Dictionary<int, decimal>();
         }
 
-        public bool CreateBankAccount(int identifiant, decimal montantInitial)
+        public CompteBancaire(int identifiant, decimal soldeInitial)
         {
-            bool res = false;
+            Identifiant = identifiant;
+            Solde = soldeInitial;
+        }
 
-            if (!comptes.ContainsKey(identifiant))
+        public override string ToString()
+        {
+            return $"Identifiant: {Identifiant}, Solde: {Solde}";
+        }
+    }
+
+    class GestionCompteBancaire
+    {
+        private List<CompteBancaire> comptes;
+        private static int dernierIdentifiant = 1;
+
+        public GestionCompteBancaire()
+        {
+            comptes = new List<CompteBancaire>();
+        }
+
+        public CompteBancaire CreateBankAccount(decimal montantInitial)
+        {
+            CompteBancaire nouveauCompte = new CompteBancaire
             {
-                comptes.Add(identifiant, montantInitial);
-                res = true;
-            }
-            else
-            {
-                res = false;
-                throw new Exception($"Le compte avec l'identifiant {identifiant} existe déjà.");
-            }
-            return res;
+                Identifiant = dernierIdentifiant,
+                Solde = montantInitial
+            };
+
+            comptes.Add(nouveauCompte);
+            dernierIdentifiant++;
+
+            return nouveauCompte;
         }
 
         public bool Deposit(int identifiant, decimal montant)
         {
-            bool res = false;
-            if (comptes.ContainsKey(identifiant))
+            CompteBancaire compte = GetCompteById(identifiant);
+
+            if (compte != null)
             {
-                comptes[identifiant] += montant;
-                res = true;
+                compte.Solde += montant;
+                return true;
             }
             else
             {
-                res = false;
-               throw new Exception($"Le compte avec l'identifiant {identifiant} n'existe pas.");
+                Console.WriteLine($"Le compte avec l'identifiant {identifiant} n'existe pas.");
+                return false;
             }
-            return res;
         }
 
         public bool Withdraw(int identifiant, decimal montant)
         {
-            bool res = false;
-            if (comptes.ContainsKey(identifiant))
+            CompteBancaire compte = GetCompteById(identifiant);
+
+            if (compte != null)
             {
-                
-                if (comptes[identifiant] >= montant)
+                if (compte.Solde >= montant)
                 {
-                    comptes[identifiant] -= montant;
-                    res = true;
+                    compte.Solde -= montant;
+                    return true;
                 }
                 else
                 {
-                    res = false;
-                    throw new Exception("Solde insuffisant.");
+                    Console.WriteLine("Solde insuffisant.");
+                    return false;
                 }
             }
             else
             {
-                res = false;
-                throw new Exception($"Le compte avec l'identifiant {identifiant} n'existe pas.");
+                Console.WriteLine($"Le compte avec l'identifiant {identifiant} n'existe pas.");
+                return false;
             }
-            return res;
+        }
+
+        public CompteBancaire GetCompteById(int identifiant)
+        {
+            return comptes.FirstOrDefault(c => c.Identifiant == identifiant);
         }
 
         public override string ToString()
@@ -79,7 +100,7 @@ namespace ProjetPart1
 
             foreach (var compte in comptes)
             {
-                result += $"Identifiant: {compte.Key}, Solde: {compte.Value}\n";
+                result += compte.ToString() + "\n";
             }
 
             return result;
@@ -93,12 +114,17 @@ namespace ProjetPart1
         public int Expediteur { get; set; }
         public int Destinataire { get; set; }
 
+        public void AffUneTransac(Transaction transac)
+        {
+            Console.WriteLine($"ID : {transac.Identifiant} Montant : {transac.Montant} Exp : {transac.Expediteur} Dest : {transac.Destinataire}");
+        }
     }
 
-    class GestionTransac : Transaction
+    class GestionTransac
     {
         private List<Transaction> transactions;
         private static int dernierIdentifiant = 1;
+
         public GestionTransac()
         {
             transactions = new List<Transaction>();
@@ -121,11 +147,52 @@ namespace ProjetPart1
 
         public void AfficheTransac()
         {
+            int cpt = 0;
             Console.WriteLine("Liste des transactions :");
             foreach (Transaction transaction in transactions)
             {
                 Console.WriteLine($"Identifiant: {transaction.Identifiant}, Montant: {transaction.Montant}, Expediteur: {transaction.Expediteur}, Destinataire: {transaction.Destinataire}");
+                cpt++;
             }
+
+            if (cpt == 0)
+            {
+                Console.WriteLine($"Liste transaction vide.");
+            }
+        }
+
+        public Transaction GetTransactionById(int identifiant)
+        {
+            return transactions.FirstOrDefault(t => t.Identifiant == identifiant);
+        }
+
+        public bool IsPossible(Transaction transac, GestionCompteBancaire gestionComptes)
+        {
+            bool res = false;
+
+            CompteBancaire exp = gestionComptes.GetCompteById(transac.Expediteur);
+           
+            if(!(exp.Solde < transac.Montant))
+            {
+                res = true;
+            }
+            
+            return res;
+        }
+    
+        public void DoTransac(Transaction transaction, GestionCompteBancaire gestionCompte)
+        {
+            
+            if(IsPossible(transaction, gestionCompte))
+            {
+                gestionCompte.Deposit(transaction.Destinataire, transaction.Montant);
+                gestionCompte.Withdraw(transaction.Expediteur, transaction.Montant);
+            }
+            else
+            {
+                Console.WriteLine("Impossible");
+            }
+
         }
     }
 
@@ -134,9 +201,4 @@ namespace ProjetPart1
         public int Identifiant { get; set; }
         public string Statut { get; set; }
     }
-
-
-
-
-
 }
