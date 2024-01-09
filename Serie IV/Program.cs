@@ -54,17 +54,22 @@ namespace Serie_IV
             Console.WriteLine("-----------------------------------------------");
 
             int numbers = 123456789;
-            string[] names = new string[] { "aaron", "abby", "abdul", "abe", "abel", "abigail", "abraham", "adam", "adan", "adele", "adolfo", "adolph", "adrian" };
+            string[] names = new string[] { "aaron", "abby", "abdul", "abe", "abel", "abigail", "abraham", "adam", "adan", "adele", "adolfo", "adolph", "adrian" ,"Charles Eudes"};
 
             PhoneBook pb = new PhoneBook();
+
+
             for (int i = 0; i < names.Length; i++)
             {
                 pb.AddPhoneNumber("0" + numbers.ToString(), names[i]);
                 numbers++;
             }
 
+            pb.DisplayPhoneBook();
             pb.PhoneContact("0123456789");
+            pb.PhoneContact("0123456802");
             pb.DeletePhoneNumber("0123456789");
+            pb.DeletePhoneNumber("0123456802");
             pb.DisplayPhoneBook();
             #endregion
 

@@ -163,7 +163,7 @@ namespace Serie_IV
                 {
                     DateTime date = entry.Key;
                     List<TimeSpan> meetings = entry.Value;
-
+                    
                     Console.WriteLine($"Date : {date.ToString("dd/MM/yyyy HH:mm:ss")}");
 
                     foreach (var duration in meetings)

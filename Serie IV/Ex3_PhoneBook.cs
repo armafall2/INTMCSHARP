@@ -43,15 +43,17 @@ namespace Serie_IV
         }
         public bool DeletePhoneNumber(string phoneNumber)
         {
+            string phoneNumberBF = GetPhoneContact(phoneNumber);
+
             if (ContainsPhoneContact(phoneNumber))
             {
                 contacts.Remove(phoneNumber);
-                Console.WriteLine($"Le contact avec le numéro {phoneNumber} a été supprimé.");
+                Console.WriteLine($"Le contact {phoneNumberBF} avec le numéro {phoneNumber} a été supprimé.");
                 return true;
             }
             else
             {
-                Console.WriteLine($"Le contact avec le numéro {phoneNumber} n'existe pas dans le carnet.");
+                Console.WriteLine($"Le contact {phoneNumberBF} avec le numéro {phoneNumber} n'existe pas dans le carnet.");
                 return false;
             }
         }
