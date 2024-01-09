@@ -10,6 +10,18 @@ namespace ProjetPart1
     {
         static void Main(string[] args)
         {
+            CompteBancaire test = new CompteBancaire();
+
+            test.Identifiant = 1;
+           
+
+            Console.WriteLine(test.ToString());
+
+
+
+
+
+            Console.ReadKey();
 
         }
     }
