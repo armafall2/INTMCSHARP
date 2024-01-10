@@ -9,15 +9,43 @@ namespace ProjetPart1
         public int Identifiant { get; set; }
         public decimal Solde { get; set; }
 
+        public List<decimal> derniersRetraits = new List<decimal>();
+
         public CompteBancaire()
         {
             Solde = 0;
         }
+
         public CompteBancaire(int identifiant, decimal soldeInitial)
         {
             Identifiant = identifiant;
             Solde = soldeInitial;
         }
+
+        public void test()
+        {
+            foreach(var element in derniersRetraits)
+            {
+                Console.WriteLine(element);
+            }
+        }
+
+        public bool EstRetraitAutorise(decimal montant)
+        {
+            if (derniersRetraits.Count >= 10)
+            {
+                derniersRetraits.RemoveAt(0);
+            }
+
+            decimal sommeDerniersRetraits = derniersRetraits.Sum();
+            return (sommeDerniersRetraits + montant) <= 1000;
+        }
+
+        public void AjouterRetrait(decimal montant)
+        {
+            derniersRetraits.Add(montant);
+        }
+
         public override string ToString()
         {
             return $"Identifiant: {Identifiant}, Solde: {Solde}";
@@ -33,6 +61,7 @@ namespace ProjetPart1
         {
             comptes = new List<CompteBancaire>();
         }
+
         public CompteBancaire CreateBankAccount(decimal montantInitial)
         {
             CompteBancaire nouveauCompte = new CompteBancaire();
@@ -41,7 +70,6 @@ namespace ProjetPart1
             {
                 nouveauCompte.Identifiant = dernierIdentifiant;
                 nouveauCompte.Solde = 0;
-
             }
             else
             {
@@ -54,9 +82,9 @@ namespace ProjetPart1
 
             return nouveauCompte;
         }
+
         public CompteBancaire CreateBankAccount()
         {
-            
             CompteBancaire nouveauCompte = new CompteBancaire
             {
                 Identifiant = dernierIdentifiant,
@@ -66,7 +94,6 @@ namespace ProjetPart1
             dernierIdentifiant++;
 
             return nouveauCompte;
-
         }
 
         public bool Deposit(int identifiant, decimal montant)
@@ -84,20 +111,22 @@ namespace ProjetPart1
                 return false;
             }
         }
+
         public bool Withdraw(int identifiant, decimal montant)
         {
             CompteBancaire compte = GetCompteById(identifiant);
 
             if (compte != null)
             {
-                if (compte.Solde >= montant)
+                if (compte.Solde >= montant && compte.EstRetraitAutorise(montant))
                 {
                     compte.Solde -= montant;
+                  
                     return true;
                 }
                 else
                 {
-                    Console.WriteLine("Solde insuffisant.");
+                    Console.WriteLine("Solde insuffisant ou retrait non autorisé.");
                     return false;
                 }
             }
@@ -107,17 +136,19 @@ namespace ProjetPart1
                 return false;
             }
         }
+
         public CompteBancaire GetCompteById(int identifiant)
         {
             return comptes.FirstOrDefault(c => c.Identifiant == identifiant);
         }
+
         public override string ToString()
         {
             string result = "Comptes Bancaires:\n";
 
             foreach (var compte in comptes)
             {
-                result += compte.ToString() +" $"+ "\n";
+                result += compte.ToString() + " $\n";
             }
             return result;
         }
@@ -138,16 +169,16 @@ namespace ProjetPart1
 
     class GestionTransac
     {
+        decimal montantMax = 1000;
         private List<Transaction> transactions;
         int dernierIdentifiant = 1;
-
         public GestionTransac()
         {
             transactions = new List<Transaction>();
         }
+
         public void AjouterTransaction(decimal montant, int expediteur, int destinataire)
         {
-            
             Transaction nouvelleTransaction = new Transaction
             {
                 Identifiant = dernierIdentifiant,
@@ -158,7 +189,6 @@ namespace ProjetPart1
 
             transactions.Add(nouvelleTransaction);
             dernierIdentifiant++;
-
         }
         public void AfficheTransac()
         {
@@ -179,8 +209,6 @@ namespace ProjetPart1
         {
             return transactions.FirstOrDefault(t => t.Identifiant == identifiant);
         }
-        
-        
         public string NatureOfTransac(Transaction transac)
         {
             string res = "";
@@ -188,52 +216,47 @@ namespace ProjetPart1
             int exp = transac.Expediteur;
             int dest = transac.Destinataire;
 
-            if(exp == 0 && dest != 0)
+            if (exp == 0 && dest != 0)
             {
                 res = "dep";
             }
-
-            else if(exp != 0 && dest == 0)
+            else if (exp != 0 && dest == 0)
             {
                 res = "wit";
             }
-
-            else if(exp != 0 && dest != 0)
+            else if (exp != 0 && dest != 0)
             {
                 res = "vir";
             }
-
             else if (exp == 0 && dest == 0)
             {
                 res = "error";
             }
 
-                return res;
+            return res;
         }
-
-
         public bool IsPossible(Transaction transac, GestionCompteBancaire gestionComptes, string code)
         {
             CompteBancaire exp = gestionComptes.GetCompteById(transac.Expediteur);
             CompteBancaire dest = gestionComptes.GetCompteById(transac.Destinataire);
             switch (code)
             {
-                case "dep":   
-                     if(dest != null && transac.Montant > 0)
+                case "dep":
+                    if (dest != null && transac.Montant > 0)
                     {
                         return true;
                     }
-                     break;
+                    break;
 
                 case "wit":
-                    if (exp != null && exp.Solde >= transac.Montant )
+                    if (exp != null && exp.Solde >= transac.Montant && exp.EstRetraitAutorise(transac.Montant))
                     {
                         return true;
                     }
                     break;
 
                 case "vir":
-                    if (exp != null && dest != null && transac.Montant > 0 && exp.Solde >= transac.Montant)
+                    if (exp != null && dest != null && transac.Montant > 0 && exp.Solde >= transac.Montant && exp.EstRetraitAutorise(transac.Montant))
                     {
                         return true;
                     }
@@ -243,14 +266,14 @@ namespace ProjetPart1
         }
         public bool DoTransac(Transaction transaction, GestionCompteBancaire gestionCompte, string code)
         {
-            bool res = false;            
+            bool res = false;
             CompteBancaire exp = gestionCompte.GetCompteById(transaction.Expediteur);
             CompteBancaire dest = gestionCompte.GetCompteById(transaction.Destinataire);
 
             switch (code)
             {
                 case "dep":
-                    if(IsPossible(transaction, gestionCompte, code))
+                    if (IsPossible(transaction, gestionCompte, code))
                     {
                         gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
                         res = true;
@@ -258,26 +281,26 @@ namespace ProjetPart1
                     break;
 
                 case "wit":
-                    if(IsPossible(transaction, gestionCompte, code))
+                    if (IsPossible(transaction, gestionCompte, code))
                     {
                         gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
+                        exp.AjouterRetrait(transaction.Montant); 
                         res = true;
                     }
-
                     break;
-                
+
                 case "vir":
-                    if(IsPossible(transaction, gestionCompte, code))
+                    if (IsPossible(transaction, gestionCompte, code))
                     {
                         gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
                         gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
+                        exp.AjouterRetrait(transaction.Montant);
                         res = true;
                     }
                     break;
+
             }
             return res;
-
         }
     }
-
 }

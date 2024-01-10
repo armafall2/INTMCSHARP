@@ -156,19 +156,19 @@ namespace ProjetPart1
                     resultAEcrire += ";";
 
                 }
-                Console.WriteLine(resultAEcrire);
+                //Console.WriteLine(resultAEcrire);
                 ResultaFile.WriteLine(resultAEcrire);
                 cptGlo++;
            
             }
             transacFile.Close();
 
-            gestionTransacCSV.AfficheTransac();
+            //gestionTransacCSV.AfficheTransac();
 
             //Console.WriteLine(gestionComptesCSV.ToString());
             ResultaFile.Close();
             chrono.Stop();
-            Console.WriteLine($"terminer {cptGlo} transac en {chrono.ElapsedMilliseconds} ms");
+            Console.WriteLine($"terminer {cptGlo-1} transac en {chrono.ElapsedMilliseconds} ms");
             Console.ReadKey();
         }
 
