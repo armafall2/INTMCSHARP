@@ -74,7 +74,9 @@ namespace ProjetPart1
             #endregion
 
             int cpt = 0;
-            int cptGlo = 0;
+            int cptGlo = 1;
+
+            bool test = false;
 
             GestionTransac        gestionTransacCSV = new GestionTransac();
             GestionCompteBancaire gestionComptesCSV = new GestionCompteBancaire();
@@ -107,83 +109,67 @@ namespace ProjetPart1
 
             }
             accountFile.Close();
-
             //Console.WriteLine(gestionComptesCSV.ToString());
-
             while (!transacFile.EndOfStream)
             {
                 string line = transacFile.ReadLine();
                 string[] stk = line.Split(';');
                 string montantStr = stk[0];
                 montantStr = montantStr.Replace(".", ",");
-                string resultAEcrire = "";
-                if (stk.Length == 3)
-                {
-                    if (decimal.TryParse(montantStr, out decimal montantAvecDecimal))
-                    {
+                string resultAEcrire = $"";
 
+                if (stk.Length == 3)
+
+                {
+                    if (decimal.TryParse(montantStr, out decimal montantAvecDecimal) && montantAvecDecimal > 0)
+                    {
                         gestionTransacCSV.AjouterTransaction(montantAvecDecimal, int.Parse(stk[1]), int.Parse(stk[2]));
+
                         cpt++;
 
                         bool resultTransac = gestionTransacCSV.DoTransac(gestionTransacCSV.GetTransactionById(cpt), gestionComptesCSV, gestionTransacCSV.NatureOfTransac(gestionTransacCSV.GetTransactionById(cpt)));
-                        decimal montant = gestionTransacCSV.GetTransactionById(cpt).Montant;
-                        int exp = gestionTransacCSV.GetTransactionById(cpt).Expediteur;
-                        int dest = gestionTransacCSV.GetTransactionById(cpt).Destinataire;
-                        int id = gestionTransacCSV.GetTransactionById(cpt).Identifiant;
-
-                        resultAEcrire = $"{GetKOOK(resultTransac)};{id};{montant};{exp};{dest}";
+                        transactionCSV = gestionTransacCSV.GetTransactionById(cpt);
+                        resultAEcrire = $"{GetKOOK(resultTransac)};{cptGlo};{transactionCSV.Montant};{transactionCSV.Expediteur};{transactionCSV.Destinataire}";
                     }
                     else
                     {
-                        resultAEcrire = $"KO;{stk[0]};{stk[1]};{stk[2]}";
+                        resultAEcrire += "KO;"+cptGlo;
 
+                        for (int i = 0; i < stk.Length; i++)
+                        {
+                            resultAEcrire += ";" + stk[i];
+                        }
+
+                        resultAEcrire += ";";
                     }
-                    
+                   
                 }
                 else
                 {
-                    resultAEcrire += "KO";
+                    resultAEcrire += "KO;" + cptGlo;
+
                     for(int i = 0; i < stk.Length; i++)
                     {
                         resultAEcrire += ";" + stk[i];
                     }
-                    resultAEcrire += ";";
-                }
 
-                //Console.WriteLine(resultAEcrire);
+                    resultAEcrire += ";";
+
+                }
+                Console.WriteLine(resultAEcrire);
                 ResultaFile.WriteLine(resultAEcrire);
                 cptGlo++;
-
-
-
+           
             }
             transacFile.Close();
 
-            #region
-            /*
-            for (int j = 0; j < cpt; j++)
-            {
-                bool resultTransac = gestionTransacCSV.DoTransac(gestionTransacCSV.GetTransactionById(j + 1), gestionComptesCSV, gestionTransacCSV.NatureOfTransac(gestionTransacCSV.GetTransactionById(j + 1)));
-                decimal montant = gestionTransacCSV.GetTransactionById(j + 1).Montant;
-                int exp = gestionTransacCSV.GetTransactionById(j + 1).Expediteur;
-                int dest = gestionTransacCSV.GetTransactionById(j + 1).Destinataire;
-                int id = gestionTransacCSV.GetTransactionById(j + 1).Identifiant;
+            gestionTransacCSV.AfficheTransac();
 
-
-                string resultAEcrire = $"{GetKOOK(resultTransac)};{id};{montant};{exp};{dest}";
-
-                Console.WriteLine(resultAEcrire);
-
-                ResultaFile.WriteLine(resultAEcrire);
-            }
-            */
-            #endregion
             //Console.WriteLine(gestionComptesCSV.ToString());
             ResultaFile.Close();
             chrono.Stop();
             Console.WriteLine($"terminer {cptGlo} transac en {chrono.ElapsedMilliseconds} ms");
             Console.ReadKey();
-
         }
 
         public static void AffText(string titre)

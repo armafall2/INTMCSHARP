@@ -147,6 +147,7 @@ namespace ProjetPart1
         }
         public void AjouterTransaction(decimal montant, int expediteur, int destinataire)
         {
+            
             Transaction nouvelleTransaction = new Transaction
             {
                 Identifiant = dernierIdentifiant,
@@ -156,8 +157,8 @@ namespace ProjetPart1
             };
 
             transactions.Add(nouvelleTransaction);
-
             dernierIdentifiant++;
+
         }
         public void AfficheTransac()
         {
@@ -213,60 +214,32 @@ namespace ProjetPart1
 
         public bool IsPossible(Transaction transac, GestionCompteBancaire gestionComptes, string code)
         {
-            bool res = false;
-
             CompteBancaire exp = gestionComptes.GetCompteById(transac.Expediteur);
             CompteBancaire dest = gestionComptes.GetCompteById(transac.Destinataire);
-
             switch (code)
             {
                 case "dep":   
-                     if(transac.Montant > 0)
+                     if(dest != null && transac.Montant > 0)
                     {
-                        res = true;
+                        return true;
                     }
                      break;
 
                 case "wit":
-                    if (exp == null)
+                    if (exp != null && exp.Solde >= transac.Montant )
                     {
-                        return false;
-                    }
-                    else { 
-                    if (exp.Solde >= transac.Montant)
-                    {
-                        res = true;
-                    }
+                        return true;
                     }
                     break;
 
                 case "vir":
-                    if(exp == null)
+                    if (exp != null && dest != null && transac.Montant > 0 && exp.Solde >= transac.Montant)
                     {
-                        return false;
-                    }
-                    else { 
-                    if (!(exp.Solde < transac.Montant))
-                    {
-                        res = true;
-                    }
-                    else
-                    {
-                        res = false;
-                    }
+                        return true;
                     }
                     break;
-
-                case "error":
-                    res = false;
-                     break;
-
-                default:
-                    res = false;
-                     break;
             }
-
-            return res;
+            return false;
         }
         public bool DoTransac(Transaction transaction, GestionCompteBancaire gestionCompte, string code)
         {
@@ -300,13 +273,6 @@ namespace ProjetPart1
                         gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
                         res = true;
                     }
-                    break;
-
-                case "error":
-                    res = false;
-                    break;
-                default:
-                    res = false;
                     break;
             }
             return res;
