@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,38 +62,44 @@ namespace ProjetPart1
 
             AffText("Mise en place CSV");
 
+            string path = Directory.GetCurrentDirectory();
+            string acctPath = path + @"\Comptes_1.txt";
 
             GestionTransac        gestionTransacCSV = new GestionTransac();
             GestionCompteBancaire gestionComptesCSV = new GestionCompteBancaire();
             Transaction              transactionCSV = new Transaction();
+            CompteBancaire           compteBancaire = new CompteBancaire();
 
-            gestionComptesCSV.CreateBankAccount(3000);
-            gestionComptesCSV.CreateBankAccount(3000);
+            StreamReader accountFile = new StreamReader(acctPath);
+            
+
+            while (!accountFile.EndOfStream)
+            {
+                string line = accountFile.ReadLine();
+                string[] stk = line.Split(';');
+
+
+                string montantStr = string.IsNullOrEmpty(stk[1]) ? "0" : stk[1];
+
+                montantStr = montantStr.Replace(".", ",");
+
+                if (decimal.TryParse(montantStr, out decimal montantAvecDecimal))
+                {
+
+                    gestionComptesCSV.CreateBankAccount(montantAvecDecimal);
+                }
+                else
+                {
+                    Console.WriteLine("La conversion en décimal a échoué. Format incorrect.");
+                }
+
+            }
+            accountFile.Close();
+
+
 
             Console.WriteLine(gestionComptesCSV.ToString());
 
-            gestionTransacCSV.AjouterTransaction(200, 0, 1);
-            gestionTransacCSV.AjouterTransaction(3000, 1, 0);
-            gestionTransacCSV.AjouterTransaction(3000, 2, 1);
-            gestionTransacCSV.AjouterTransaction(3000, 0, 0);
-
-            gestionTransacCSV.AfficheTransac();
-
-            int identifiant = 1;
-
-            Console.WriteLine("test");
-
-            transactionCSV = gestionTransacCSV.GetTransactionById(identifiant);
-
-            transactionCSV.AffUneTransac(transactionCSV);
-
-            Console.WriteLine(transactionCSV.Expediteur);
-
-            gestionTransacCSV.DoTransac(gestionTransacCSV.GetTransactionById(identifiant), gestionComptesCSV, "dep");
-
-
-            gestionTransacCSV.DoTransac(gestionTransacCSV.GetTransactionById(identifiant), gestionComptesCSV, gestionTransacCSV.NatureOfTransac(gestionTransacCSV.GetTransactionById(identifiant)));
-            Console.WriteLine(gestionComptesCSV.ToString());
 
             Console.ReadKey();
 
