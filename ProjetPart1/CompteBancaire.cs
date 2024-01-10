@@ -119,9 +119,6 @@ namespace ProjetPart1
             {
                 result += compte.ToString() +" $"+ "\n";
             }
-            
-           
-
             return result;
         }
     }
@@ -231,16 +228,32 @@ namespace ProjetPart1
                      break;
 
                 case "wit":
-                    if(exp.Solde >= transac.Montant)
+                    if (exp == null)
+                    {
+                        return false;
+                    }
+                    else { 
+                    if (exp.Solde >= transac.Montant)
                     {
                         res = true;
                     }
-                     break;
+                    }
+                    break;
 
                 case "vir":
+                    if(exp == null)
+                    {
+                        return false;
+                    }
+                    else { 
                     if (!(exp.Solde < transac.Montant))
                     {
                         res = true;
+                    }
+                    else
+                    {
+                        res = false;
+                    }
                     }
                     break;
 
@@ -257,11 +270,7 @@ namespace ProjetPart1
         }
         public bool DoTransac(Transaction transaction, GestionCompteBancaire gestionCompte, string code)
         {
-            bool res = false;
-
-            Console.WriteLine(gestionCompte.GetCompteById(transaction.Expediteur));
-
-            
+            bool res = false;            
             CompteBancaire exp = gestionCompte.GetCompteById(transaction.Expediteur);
             CompteBancaire dest = gestionCompte.GetCompteById(transaction.Destinataire);
 
