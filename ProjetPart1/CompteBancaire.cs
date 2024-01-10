@@ -30,7 +30,12 @@ namespace ProjetPart1
             }
         }
 
-        public bool EstRetraitAutorise(decimal montant)
+        /// <summary>
+        /// Vérifie si un retrait est autorisé en fonction du montant max de retrait (1000)
+        /// </summary>
+        /// <param name="montant"></param>
+        /// <returns></returns>
+        internal bool EstRetraitAutorise(decimal montant)
         {
             if (derniersRetraits.Count >= 10)
             {
@@ -41,11 +46,19 @@ namespace ProjetPart1
             return (sommeDerniersRetraits + montant) <= 1000;
         }
 
-        public void AjouterRetrait(decimal montant)
+        /// <summary>
+        /// Ajoute le retrait a la list
+        /// </summary>
+        /// <param name="montant"></param>
+        internal void AjouterRetrait(decimal montant)
         {
             derniersRetraits.Add(montant);
         }
 
+        /// <summary>
+        /// Retourne le compte avec un affichage
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return $"Identifiant: {Identifiant}, Solde: {Solde}";
@@ -55,15 +68,28 @@ namespace ProjetPart1
     class GestionCompteBancaire
     {
         private List<CompteBancaire> comptes;
-        int dernierIdentifiant = 1;
 
         public GestionCompteBancaire()
         {
             comptes = new List<CompteBancaire>();
         }
 
-        public CompteBancaire CreateBankAccount(decimal montantInitial)
+        /// <summary>
+        /// Crée un compte dans la liste GestionCompteBancaire
+        /// avec un solde minimum de 0 ( il y a une surcharge si pas de solde)
+        /// l'identifiant est autoincrémenté
+        /// </summary>
+        /// <param name="montantInitial"></param>
+        /// <returns></returns>
+        public bool CreateBankAccount(decimal montantInitial, int dernierIdentifiant)
         {
+            
+            if (comptes.Any(c => c.Identifiant == dernierIdentifiant))
+            {
+                Console.WriteLine("Le compte avec l'identifiant spécifié existe déjà.");
+                return false;
+            }
+
             CompteBancaire nouveauCompte = new CompteBancaire();
 
             if (montantInitial.Equals(null) || montantInitial == 0)
@@ -78,24 +104,15 @@ namespace ProjetPart1
             }
 
             comptes.Add(nouveauCompte);
-            dernierIdentifiant++;
-
-            return nouveauCompte;
+            return true;
         }
 
-        public CompteBancaire CreateBankAccount()
-        {
-            CompteBancaire nouveauCompte = new CompteBancaire
-            {
-                Identifiant = dernierIdentifiant,
-                Solde = 0
-            };
-            comptes.Add(nouveauCompte);
-            dernierIdentifiant++;
-
-            return nouveauCompte;
-        }
-
+        /// <summary>
+        /// Dépot sur le compte identifié par identifiant, avec un montant
+        /// </summary>
+        /// <param name="identifiant"></param>
+        /// <param name="montant"></param>
+        /// <returns></returns>
         public bool Deposit(int identifiant, decimal montant)
         {
             CompteBancaire compte = GetCompteById(identifiant);
@@ -112,6 +129,12 @@ namespace ProjetPart1
             }
         }
 
+        /// <summary>
+        /// Retrait sur le compte identifié par identifiant d'un montant
+        /// </summary>
+        /// <param name="identifiant"></param>
+        /// <param name="montant"></param>
+        /// <returns></returns>
         public bool Withdraw(int identifiant, decimal montant)
         {
             CompteBancaire compte = GetCompteById(identifiant);
@@ -137,11 +160,21 @@ namespace ProjetPart1
             }
         }
 
+        /// <summary>
+        /// Retourne un compte bancaire depuis la liste de gestionCompteBancaire
+        /// en fonction d'un identifiant
+        /// </summary>
+        /// <param name="identifiant"></param>
+        /// <returns></returns>
         public CompteBancaire GetCompteById(int identifiant)
         {
             return comptes.FirstOrDefault(c => c.Identifiant == identifiant);
         }
 
+        /// <summary>
+        /// Renvoi l'intégralité de liste de gestionCompteBancaire
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string result = "Comptes Bancaires:\n";
@@ -161,35 +194,58 @@ namespace ProjetPart1
         public int Expediteur { get; set; }
         public int Destinataire { get; set; }
 
+        /// <summary>
+        /// Affichage d'une transaction
+        /// </summary>
+        /// <param name="transac"></param>
         public void AffUneTransac(Transaction transac)
         {
             Console.WriteLine($"ID : {transac.Identifiant} Montant : {transac.Montant} Exp : {transac.Expediteur} Dest : {transac.Destinataire}");
         }
     }
 
+
     class GestionTransac
     {
         decimal montantMax = 1000;
         private List<Transaction> transactions;
-        int dernierIdentifiant = 1;
+      
         public GestionTransac()
         {
             transactions = new List<Transaction>();
         }
 
-        public void AjouterTransaction(decimal montant, int expediteur, int destinataire)
+        /// <summary>
+        /// Ajoute une transaction a la liste gestionTransac, identifiant auto-incrémenté
+        /// </summary>
+        /// <param name="montant"></param>
+        /// <param name="expediteur"></param>
+        /// <param name="destinataire"></param>
+        public bool AjouterTransaction(int identifiant, decimal montant, int expediteur, int destinataire)
         {
+            // Vérifier si la transaction avec le même identifiant existe déjà
+            if (transactions.Any(t => t.Identifiant == identifiant))
+            {
+                return false;
+            }
+            else { 
             Transaction nouvelleTransaction = new Transaction
             {
-                Identifiant = dernierIdentifiant,
+                Identifiant = identifiant,
                 Montant = montant,
                 Expediteur = expediteur,
                 Destinataire = destinataire
             };
 
             transactions.Add(nouvelleTransaction);
-            dernierIdentifiant++;
+            return true;
+            }
         }
+
+
+        /// <summary>
+        /// Affiche toute les transactions
+        /// </summary>
         public void AfficheTransac()
         {
             int cpt = 0;
@@ -205,15 +261,32 @@ namespace ProjetPart1
                 Console.WriteLine($"Liste transaction vide.");
             }
         }
+        /// <summary>
+        /// Récuperer Recuperer une transaction par rapport a un identifiant
+        /// </summary>
+        /// <param name="identifiant"></param>
+        /// <returns></returns>
         public Transaction GetTransactionById(int identifiant)
         {
             return transactions.FirstOrDefault(t => t.Identifiant == identifiant);
         }
+        /// <summary>
+        /// Récupere la nature d'une transaction en fonction d'un identifiant
+        /// la nature est retourné sous la forme d'un code string (de 3 char)
+        /// </summary>
+        /// <param name="transac"></param>
+        /// <returns></returns>
         public string NatureOfTransac(Transaction transac)
         {
             string res = "";
 
+            if(transac != null)
+            {
+                
+            
+
             int exp = transac.Expediteur;
+
             int dest = transac.Destinataire;
 
             if (exp == 0 && dest != 0)
@@ -232,9 +305,19 @@ namespace ProjetPart1
             {
                 res = "error";
             }
-
+            }
             return res;
+            
         }
+        /// <summary>
+        /// Determine si une transaction est possible
+        /// en fonction d'un code bancaire et d'une action a réaliser
+        /// les conditions sont determiné dans l'énoncer
+        /// </summary>
+        /// <param name="transac"></param>
+        /// <param name="gestionComptes"></param>
+        /// <param name="code"></param>
+        /// <returns></returns>
         public bool IsPossible(Transaction transac, GestionCompteBancaire gestionComptes, string code)
         {
             CompteBancaire exp = gestionComptes.GetCompteById(transac.Expediteur);
@@ -264,9 +347,20 @@ namespace ProjetPart1
             }
             return false;
         }
+
+        /// <summary>
+        /// Réalise la transaction si elle est possible
+        /// et ajoute le montant au total de retrait pour savoir si un retrait ne 
+        /// depasse ou ne va pas dépasser le total
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <param name="gestionCompte"></param>
+        /// <param name="code"></param>
+        /// <returns></returns>
         public bool DoTransac(Transaction transaction, GestionCompteBancaire gestionCompte, string code)
         {
             bool res = false;
+            if(transaction != null) {
             CompteBancaire exp = gestionCompte.GetCompteById(transaction.Expediteur);
             CompteBancaire dest = gestionCompte.GetCompteById(transaction.Destinataire);
 
@@ -299,6 +393,7 @@ namespace ProjetPart1
                     }
                     break;
 
+            }
             }
             return res;
         }

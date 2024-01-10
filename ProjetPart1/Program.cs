@@ -29,7 +29,7 @@ namespace ProjetPart1
             {
                // decimal randomDecimal = (decimal)randSoldeEntPart.Next() + ((decimal)randSoldeDecPart.Next(0, 99) / 100);
 
-                gestionComptes.CreateBankAccount(1000);
+                gestionComptes.CreateBankAccount(1000, i);
             }
 
            
@@ -43,9 +43,9 @@ namespace ProjetPart1
 
             gestionTransac.AfficheTransac();
 
-            gestionTransac.AjouterTransaction(1000, 2, 1);
-            gestionTransac.AjouterTransaction(3330.22M, 4, 5);
-            gestionTransac.AjouterTransaction(3330.22M, 9, 10);
+            gestionTransac.AjouterTransaction(1,1000, 2, 1);
+            gestionTransac.AjouterTransaction(2,3330.22M, 4, 5);
+            gestionTransac.AjouterTransaction(3,3330.22M, 9, 10);
 
             gestionTransac.AfficheTransac();
 
@@ -91,49 +91,80 @@ namespace ProjetPart1
             {
                 string line = accountFile.ReadLine();
                 string[] stk = line.Split(';');
-
+       
 
                 string montantStr = string.IsNullOrEmpty(stk[1]) ? "0" : stk[1];
 
                 montantStr = montantStr.Replace(".", ",");
+                Console.WriteLine(stk[0]);
 
-                if (decimal.TryParse(montantStr, out decimal montantAvecDecimal))
+                if (decimal.Parse(montantStr) == 0)
                 {
-
-                    gestionComptesCSV.CreateBankAccount(montantAvecDecimal);
+                    gestionComptesCSV.CreateBankAccount(0, int.Parse(stk[0]));
                 }
                 else
                 {
-                    Console.WriteLine("La conversion en décimal a échoué. Format incorrect.");
+                    gestionComptesCSV.CreateBankAccount(decimal.Parse(montantStr), int.Parse(stk[0]));
                 }
-
             }
+
+
             accountFile.Close();
-            //Console.WriteLine(gestionComptesCSV.ToString());
+            Console.WriteLine(gestionComptesCSV.ToString());
             while (!transacFile.EndOfStream)
             {
-                string line = transacFile.ReadLine();
-                string[] stk = line.Split(';');
-                string montantStr = stk[0];
-                montantStr = montantStr.Replace(".", ",");
-                string resultAEcrire = $"";
-
-                if (stk.Length == 3)
-
+                try
                 {
-                    if (decimal.TryParse(montantStr, out decimal montantAvecDecimal) && montantAvecDecimal > 0)
+                    string line = transacFile.ReadLine();
+                    string[] stk = line.Split(';');
+                    string montantStr = stk[1];
+                    montantStr = montantStr.Replace(".", ",");
+                    string resultAEcrire = "";
+                    int id = 0;
+
+                    if (stk.Length == 4)
                     {
-                        gestionTransacCSV.AjouterTransaction(montantAvecDecimal, int.Parse(stk[1]), int.Parse(stk[2]));
+                        if (decimal.TryParse(montantStr, out decimal montantAvecDecimal) && int.TryParse(stk[0], out id) && montantAvecDecimal > 0)
+                        {
+                            
+                                if(gestionTransacCSV.AjouterTransaction(id, montantAvecDecimal, int.Parse(stk[2]), int.Parse(stk[3])))
+                                {
+                                    cpt++;
 
-                        cpt++;
+                                    bool resultTransac = gestionTransacCSV.DoTransac(gestionTransacCSV.GetTransactionById(id), gestionComptesCSV, gestionTransacCSV.NatureOfTransac(gestionTransacCSV.GetTransactionById(id)));
 
-                        bool resultTransac = gestionTransacCSV.DoTransac(gestionTransacCSV.GetTransactionById(cpt), gestionComptesCSV, gestionTransacCSV.NatureOfTransac(gestionTransacCSV.GetTransactionById(cpt)));
-                        transactionCSV = gestionTransacCSV.GetTransactionById(cpt);
-                        resultAEcrire = $"{GetKOOK(resultTransac)};{cptGlo};{transactionCSV.Montant};{transactionCSV.Expediteur};{transactionCSV.Destinataire}";
+                                    transactionCSV = gestionTransacCSV.GetTransactionById(id);
+                                    resultAEcrire = $"{GetKOOK(resultTransac)};{transactionCSV.Identifiant};{transactionCSV.Montant};{transactionCSV.Expediteur};{transactionCSV.Destinataire}";
+                                }
+                            else
+                            {
+                                resultAEcrire += "KO";
+
+                                for (int i = 0; i < stk.Length; i++)
+                                {
+                                    resultAEcrire += ";" + stk[i];
+                                }
+
+                                resultAEcrire += ";";
+                            }
+
+
+                        }
+                        else
+                        {
+                            resultAEcrire += "KO";
+
+                            for (int i = 0; i < stk.Length; i++)
+                            {
+                                resultAEcrire += ";" + stk[i];
+                            }
+
+                            resultAEcrire += ";";
+                        }
                     }
                     else
                     {
-                        resultAEcrire += "KO;"+cptGlo;
+                        resultAEcrire += "KO";
 
                         for (int i = 0; i < stk.Length; i++)
                         {
@@ -142,30 +173,27 @@ namespace ProjetPart1
 
                         resultAEcrire += ";";
                     }
-                   
+                    
+
+                    Console.WriteLine(resultAEcrire);
+                    ResultaFile.WriteLine(resultAEcrire);
+                    cptGlo++;
+
                 }
-                else
+                
+                catch (Exception ex)
                 {
-                    resultAEcrire += "KO;" + cptGlo;
-
-                    for(int i = 0; i < stk.Length; i++)
-                    {
-                        resultAEcrire += ";" + stk[i];
-                    }
-
-                    resultAEcrire += ";";
-
+                    Console.WriteLine($"Une exception s'est produite : {ex.Message}");
+                 
                 }
-                //Console.WriteLine(resultAEcrire);
-                ResultaFile.WriteLine(resultAEcrire);
-                cptGlo++;
-           
             }
+
             transacFile.Close();
 
             //gestionTransacCSV.AfficheTransac();
-
+            //gestionTransacCSV.AfficheTransac();
             //Console.WriteLine(gestionComptesCSV.ToString());
+
             ResultaFile.Close();
             chrono.Stop();
             Console.WriteLine($"terminer {cptGlo-1} transac en {chrono.ElapsedMilliseconds} ms");
