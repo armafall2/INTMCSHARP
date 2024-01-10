@@ -11,14 +11,13 @@ namespace ProjetPart1
 
         public CompteBancaire()
         {
+            Solde = 0;
         }
-
         public CompteBancaire(int identifiant, decimal soldeInitial)
         {
             Identifiant = identifiant;
             Solde = soldeInitial;
         }
-
         public override string ToString()
         {
             return $"Identifiant: {Identifiant}, Solde: {Solde}";
@@ -28,25 +27,46 @@ namespace ProjetPart1
     class GestionCompteBancaire
     {
         private List<CompteBancaire> comptes;
-        private static int dernierIdentifiant = 1;
+        int dernierIdentifiant = 1;
 
         public GestionCompteBancaire()
         {
             comptes = new List<CompteBancaire>();
         }
-
         public CompteBancaire CreateBankAccount(decimal montantInitial)
         {
-            CompteBancaire nouveauCompte = new CompteBancaire
+            CompteBancaire nouveauCompte = new CompteBancaire();
+
+            if (montantInitial.Equals(null) || montantInitial == 0)
             {
-                Identifiant = dernierIdentifiant,
-                Solde = montantInitial
-            };
+                nouveauCompte.Identifiant = dernierIdentifiant;
+                nouveauCompte.Solde = 0;
+
+            }
+            else
+            {
+                nouveauCompte.Identifiant = dernierIdentifiant;
+                nouveauCompte.Solde = montantInitial;
+            }
 
             comptes.Add(nouveauCompte);
             dernierIdentifiant++;
 
             return nouveauCompte;
+        }
+        public CompteBancaire CreateBankAccount()
+        {
+            
+            CompteBancaire nouveauCompte = new CompteBancaire
+            {
+                Identifiant = dernierIdentifiant,
+                Solde = 0
+            };
+            comptes.Add(nouveauCompte);
+            dernierIdentifiant++;
+
+            return nouveauCompte;
+
         }
 
         public bool Deposit(int identifiant, decimal montant)
@@ -64,7 +84,6 @@ namespace ProjetPart1
                 return false;
             }
         }
-
         public bool Withdraw(int identifiant, decimal montant)
         {
             CompteBancaire compte = GetCompteById(identifiant);
@@ -88,20 +107,20 @@ namespace ProjetPart1
                 return false;
             }
         }
-
         public CompteBancaire GetCompteById(int identifiant)
         {
             return comptes.FirstOrDefault(c => c.Identifiant == identifiant);
         }
-
         public override string ToString()
         {
             string result = "Comptes Bancaires:\n";
 
             foreach (var compte in comptes)
             {
-                result += compte.ToString() + "\n";
+                result += compte.ToString() +" $"+ "\n";
             }
+            
+           
 
             return result;
         }
@@ -123,13 +142,12 @@ namespace ProjetPart1
     class GestionTransac
     {
         private List<Transaction> transactions;
-        private static int dernierIdentifiant = 1;
+        int dernierIdentifiant = 1;
 
         public GestionTransac()
         {
             transactions = new List<Transaction>();
         }
-
         public void AjouterTransaction(decimal montant, int expediteur, int destinataire)
         {
             Transaction nouvelleTransaction = new Transaction
@@ -144,7 +162,6 @@ namespace ProjetPart1
 
             dernierIdentifiant++;
         }
-
         public void AfficheTransac()
         {
             int cpt = 0;
@@ -160,45 +177,132 @@ namespace ProjetPart1
                 Console.WriteLine($"Liste transaction vide.");
             }
         }
-
         public Transaction GetTransactionById(int identifiant)
         {
             return transactions.FirstOrDefault(t => t.Identifiant == identifiant);
         }
+        
+        
+        public string NatureOfTransac(Transaction transac)
+        {
+            string res = "";
 
-        public bool IsPossible(Transaction transac, GestionCompteBancaire gestionComptes)
+            int exp = transac.Expediteur;
+            int dest = transac.Destinataire;
+
+            if(exp == 0 && dest != 0)
+            {
+                res = "dep";
+            }
+
+            else if(exp != 0 && dest == 0)
+            {
+                res = "wit";
+            }
+
+            else if(exp != 0 && dest != 0)
+            {
+                res = "vir";
+            }
+
+            else if (exp == 0 && dest == 0)
+            {
+                res = "error";
+            }
+
+                return res;
+        }
+
+
+        public bool IsPossible(Transaction transac, GestionCompteBancaire gestionComptes, string code)
         {
             bool res = false;
 
             CompteBancaire exp = gestionComptes.GetCompteById(transac.Expediteur);
-           
-            if(!(exp.Solde < transac.Montant))
+            CompteBancaire dest = gestionComptes.GetCompteById(transac.Destinataire);
+
+            switch (code)
             {
-                res = true;
+                case "dep":   
+                     if(transac.Montant > 0)
+                    {
+                        res = true;
+                    }
+                     break;
+
+                case "wit":
+                    if(exp.Solde >= transac.Montant)
+                    {
+                        res = true;
+                    }
+                     break;
+
+                case "vir":
+                    if (!(exp.Solde < transac.Montant))
+                    {
+                        res = true;
+                    }
+                    break;
+
+                case "error":
+                    res = false;
+                     break;
+
+                default:
+                    res = false;
+                     break;
             }
-            
+
             return res;
         }
-    
-        public void DoTransac(Transaction transaction, GestionCompteBancaire gestionCompte)
+        public bool DoTransac(Transaction transaction, GestionCompteBancaire gestionCompte, string code)
         {
+            bool res = false;
+
+            Console.WriteLine(gestionCompte.GetCompteById(transaction.Expediteur));
+
             
-            if(IsPossible(transaction, gestionCompte))
+            CompteBancaire exp = gestionCompte.GetCompteById(transaction.Expediteur);
+            CompteBancaire dest = gestionCompte.GetCompteById(transaction.Destinataire);
+
+            switch (code)
             {
-                gestionCompte.Deposit(transaction.Destinataire, transaction.Montant);
-                gestionCompte.Withdraw(transaction.Expediteur, transaction.Montant);
+                case "dep":
+                    if(IsPossible(transaction, gestionCompte, code))
+                    {
+                        gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
+                        res = true;
+                    }
+                    break;
+
+                case "wit":
+                    if(IsPossible(transaction, gestionCompte, code))
+                    {
+                        gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
+                        res = true;
+                    }
+
+                    break;
+                
+                case "vir":
+                    if(IsPossible(transaction, gestionCompte, code))
+                    {
+                        gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
+                        gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
+                        res = true;
+                    }
+                    break;
+
+                case "error":
+                    res = false;
+                    break;
+                default:
+                    res = false;
+                    break;
             }
-            else
-            {
-                Console.WriteLine("Impossible");
-            }
+            return res;
 
         }
     }
 
-    class StatutsTransac
-    {
-        public int Identifiant { get; set; }
-        public string Statut { get; set; }
-    }
 }
