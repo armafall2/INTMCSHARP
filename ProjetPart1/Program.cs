@@ -20,8 +20,6 @@ namespace ProjetPart1
 
             Random randSoldeEntPart = new Random();
             Random randSoldeDecPart = new Random();
-            decimal res = 0.1M;
-            string affRes = "";
 
             AffText("Test Fonction");
 
@@ -72,12 +70,7 @@ namespace ProjetPart1
             // Output
             string sttsPath = path + @"\Statut_1.txt";
             #endregion
-
-            int cpt = 0;
             int cptGlo = 1;
-
-            bool test = false;
-
             GestionTransac        gestionTransacCSV = new GestionTransac();
             GestionCompteBancaire gestionComptesCSV = new GestionCompteBancaire();
             Transaction              transactionCSV = new Transaction();
@@ -129,7 +122,7 @@ namespace ProjetPart1
                             
                                 if(gestionTransacCSV.AjouterTransaction(id, montantAvecDecimal, int.Parse(stk[2]), int.Parse(stk[3])))
                                 {
-                                    cpt++;
+                                    
 
                                     bool resultTransac = gestionTransacCSV.DoTransac(gestionTransacCSV.GetTransactionById(id), gestionComptesCSV, gestionTransacCSV.NatureOfTransac(gestionTransacCSV.GetTransactionById(id)));
 
@@ -147,8 +140,6 @@ namespace ProjetPart1
 
                                 resultAEcrire += ";";
                             }
-
-
                         }
                         else
                         {
