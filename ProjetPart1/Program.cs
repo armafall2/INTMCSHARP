@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -61,16 +62,19 @@ namespace ProjetPart1
 
 
             AffText("Mise en place CSV");
-
+            Stopwatch chrono = new Stopwatch();
+            chrono.Start();
             string path = Directory.GetCurrentDirectory();
-
+            #region Files
+            // Input
             string acctPath = path + @"\Comptes_1.txt";
+            string trxnPath = path + @"\Transactions_1.txt";
+            // Output
+            string sttsPath = path + @"\Statut_1.txt";
+            #endregion
 
-            string transacPath = path + @"\Transac_1.txt";
-
-            string resultPath = path + @"\result_1.txt";
- 
             int cpt = 0;
+            int cptGlo = 0;
 
             GestionTransac        gestionTransacCSV = new GestionTransac();
             GestionCompteBancaire gestionComptesCSV = new GestionCompteBancaire();
@@ -78,8 +82,8 @@ namespace ProjetPart1
             CompteBancaire           compteBancaire = new CompteBancaire();
 
             StreamReader accountFile = new StreamReader(acctPath);
-            StreamReader transacFile = new StreamReader(transacPath);
-            StreamWriter ResultaFile = new StreamWriter(resultPath);
+            StreamReader transacFile = new StreamReader(trxnPath);
+            StreamWriter ResultaFile = new StreamWriter(sttsPath);
 
             while (!accountFile.EndOfStream)
             {
@@ -104,7 +108,7 @@ namespace ProjetPart1
             }
             accountFile.Close();
 
-            Console.WriteLine(gestionComptesCSV.ToString());
+            //Console.WriteLine(gestionComptesCSV.ToString());
 
             while (!transacFile.EndOfStream)
             {
@@ -146,11 +150,13 @@ namespace ProjetPart1
                     resultAEcrire += ";";
                 }
 
-                Console.WriteLine(resultAEcrire);
+                //Console.WriteLine(resultAEcrire);
                 ResultaFile.WriteLine(resultAEcrire);
+                cptGlo++;
+
+
 
             }
-
             transacFile.Close();
 
             #region
@@ -172,8 +178,10 @@ namespace ProjetPart1
             }
             */
             #endregion
-            Console.WriteLine(gestionComptesCSV.ToString());
+            //Console.WriteLine(gestionComptesCSV.ToString());
             ResultaFile.Close();
+            chrono.Stop();
+            Console.WriteLine($"terminer {cptGlo} transac en {chrono.ElapsedMilliseconds} ms");
             Console.ReadKey();
 
         }
