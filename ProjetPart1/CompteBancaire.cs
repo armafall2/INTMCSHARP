@@ -96,6 +96,7 @@ namespace ProjetPart1
                 return false;
             }
 
+
             CompteBancaire nouveauCompte = new CompteBancaire();
 
             if (montantInitial.Equals(null) || montantInitial == 0)
