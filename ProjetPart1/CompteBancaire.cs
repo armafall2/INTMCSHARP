@@ -90,6 +90,12 @@ namespace ProjetPart1
                 return false;
             }
 
+            if(montantInitial < 0)
+            {
+                Console.WriteLine("Solde nul");
+                return false;
+            }
+
             CompteBancaire nouveauCompte = new CompteBancaire();
 
             if (montantInitial.Equals(null) || montantInitial == 0)
