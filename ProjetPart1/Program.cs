@@ -25,12 +25,12 @@ namespace ProjetPart1
 
             for (int i = 0; i < 10; i++)
             {
-               // decimal randomDecimal = (decimal)randSoldeEntPart.Next() + ((decimal)randSoldeDecPart.Next(0, 99) / 100);
+                // decimal randomDecimal = (decimal)randSoldeEntPart.Next() + ((decimal)randSoldeDecPart.Next(0, 99) / 100);
 
                 gestionComptes.CreateBankAccount(1000, i);
             }
 
-           
+
 
             Console.WriteLine("Liste des comptes bancaires :");
             Console.WriteLine(gestionComptes.ToString());
@@ -41,9 +41,9 @@ namespace ProjetPart1
 
             gestionTransac.AfficheTransac();
 
-            gestionTransac.AjouterTransaction(1,1000, 2, 1);
-            gestionTransac.AjouterTransaction(2,3330.22M, 4, 5);
-            gestionTransac.AjouterTransaction(3,3330.22M, 9, 10);
+            gestionTransac.AjouterTransaction(1, 1000, 2, 1);
+            gestionTransac.AjouterTransaction(2, 3330.22M, 4, 5);
+            gestionTransac.AjouterTransaction(3, 3330.22M, 9, 10);
 
             gestionTransac.AfficheTransac();
 
@@ -53,7 +53,7 @@ namespace ProjetPart1
             transac.AffUneTransac(transac);
 
 
-            
+
             //gestionTransac.DoTransac(gestionTransac.GetTransactionById(1), gestionComptes);
 
             Console.WriteLine(gestionComptes.ToString());
@@ -71,10 +71,10 @@ namespace ProjetPart1
             string sttsPath = path + @"\Statut_1.txt";
             #endregion
             int cptGlo = 1;
-            GestionTransac        gestionTransacCSV = new GestionTransac();
+            GestionTransac gestionTransacCSV = new GestionTransac();
             GestionCompteBancaire gestionComptesCSV = new GestionCompteBancaire();
-            Transaction              transactionCSV = new Transaction();
-            CompteBancaire           compteBancaire = new CompteBancaire();
+            Transaction transactionCSV = new Transaction();
+            CompteBancaire compteBancaire = new CompteBancaire();
 
             StreamReader accountFile = new StreamReader(acctPath);
             StreamReader transacFile = new StreamReader(trxnPath);
@@ -84,20 +84,21 @@ namespace ProjetPart1
             {
                 string line = accountFile.ReadLine();
                 string[] stk = line.Split(';');
-       
+                int tmp = 0;
 
                 string montantStr = string.IsNullOrEmpty(stk[1]) ? "0" : stk[1];
-
                 montantStr = montantStr.Replace(".", ",");
-                Console.WriteLine(stk[0]);
-
                 if (decimal.Parse(montantStr) == 0)
                 {
-                    gestionComptesCSV.CreateBankAccount(0, int.Parse(stk[0]));
+                    if (int.TryParse(stk[0], out tmp)) { 
+                    gestionComptesCSV.CreateBankAccount(0, tmp);
+                    }
                 }
                 else
                 {
-                    gestionComptesCSV.CreateBankAccount(decimal.Parse(montantStr), int.Parse(stk[0]));
+                    if(int.TryParse(stk[0], out tmp)) { 
+                    gestionComptesCSV.CreateBankAccount(decimal.Parse(montantStr), tmp);
+                    }
                 }
             }
 
@@ -115,75 +116,45 @@ namespace ProjetPart1
                     string resultAEcrire = "";
                     int id = 0;
 
-                    if (stk.Length == 4)
+                    if (stk.Length == 4 && decimal.TryParse(montantStr, out decimal montantAvecDecimal) && int.TryParse(stk[0], out id) && montantAvecDecimal > 0)
                     {
-                        if (decimal.TryParse(montantStr, out decimal montantAvecDecimal) && int.TryParse(stk[0], out id) && montantAvecDecimal > 0)
+                        if (gestionTransacCSV.AjouterTransaction(id, montantAvecDecimal, int.Parse(stk[2]), int.Parse(stk[3])))
                         {
+                            bool resultTransac = gestionTransacCSV.DoTransac(gestionTransacCSV.GetTransactionById(id), gestionComptesCSV, gestionTransacCSV.NatureOfTransac(gestionTransacCSV.GetTransactionById(id)));
+                            transactionCSV = gestionTransacCSV.GetTransactionById(id);
                             
-                                if(gestionTransacCSV.AjouterTransaction(id, montantAvecDecimal, int.Parse(stk[2]), int.Parse(stk[3])))
-                                {
-                                    
-
-                                    bool resultTransac = gestionTransacCSV.DoTransac(gestionTransacCSV.GetTransactionById(id), gestionComptesCSV, gestionTransacCSV.NatureOfTransac(gestionTransacCSV.GetTransactionById(id)));
-
-                                    transactionCSV = gestionTransacCSV.GetTransactionById(id);
-                                    resultAEcrire = $"{GetKOOK(resultTransac)};{transactionCSV.Identifiant};{transactionCSV.Montant};{transactionCSV.Expediteur};{transactionCSV.Destinataire}";
-                                }
-                            else
-                            {
-                                resultAEcrire += "KO";
-
-                                for (int i = 0; i < stk.Length; i++)
-                                {
-                                    resultAEcrire += ";" + stk[i];
-                                }
-
-                                resultAEcrire += ";";
-                            }
+                            resultAEcrire = $"{GetKOOK(resultTransac)};{transactionCSV.Identifiant};{transactionCSV.Montant};{transactionCSV.Expediteur};{transactionCSV.Destinataire}";
                         }
                         else
                         {
-                            resultAEcrire += "KO";
-
-                            for (int i = 0; i < stk.Length; i++)
-                            {
-                                resultAEcrire += ";" + stk[i];
-                            }
-
-                            resultAEcrire += ";";
+                            HandleErrorCase(ref resultAEcrire, stk);
                         }
                     }
                     else
                     {
-                        resultAEcrire += "KO";
-
-                        for (int i = 0; i < stk.Length; i++)
-                        {
-                            resultAEcrire += ";" + stk[i];
-                        }
-
-                        resultAEcrire += ";";
+                        HandleErrorCase(ref resultAEcrire, stk);
                     }
-                    
+                    resultAEcrire = resultAEcrire.Replace(',', '.');
 
                     Console.WriteLine(resultAEcrire);
-                    ResultaFile.WriteLine(resultAEcrire);
-                    cptGlo++;
 
+                    ResultaFile.WriteLine(resultAEcrire);
+
+                    ++cptGlo;
                 }
-                
+
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Une exception s'est produite : {ex.Message}");
-                 
+
                 }
             }
 
-            transacFile.Close();
+        transacFile.Close();
 
             //gestionTransacCSV.AfficheTransac();
             //gestionTransacCSV.AfficheTransac();
-            //Console.WriteLine(gestionComptesCSV.ToString());
+            Console.WriteLine(gestionComptesCSV.ToString());
 
             ResultaFile.Close();
             chrono.Stop();
@@ -191,7 +162,30 @@ namespace ProjetPart1
             Console.ReadKey();
         }
 
-        public static void AffText(string titre)
+
+    /// <summary>
+    /// Boucle de répétition du message d'erreur
+    /// Met KO suivi du contenu de la ligne
+    /// </summary>
+    /// <param name="resultAEcrire"></param>
+    /// <param name="stk"></param>
+    private static void HandleErrorCase(ref string resultAEcrire, string[] stk)
+    {
+        resultAEcrire += "KO";
+
+        for (int i = 0; i < stk.Length; i++)
+        {
+            resultAEcrire += ";" + stk[i];
+        }
+
+        resultAEcrire += ";";
+    }
+
+    /// <summary>
+    /// Affichage du titre précédé de 100 -
+    /// </summary>
+    /// <param name="titre"></param>
+    public static void AffText(string titre)
         {
             for (int i = 0; i < 100; i++)
                 Console.Write("-");
@@ -200,6 +194,11 @@ namespace ProjetPart1
             Console.WriteLine(" ");
         }
 
+        /// <summary>
+        /// Retourne OK ou KO pour l'affichage de la chaîne en fonction d'un booléen en entré
+        /// </summary>
+        /// <param name="res"></param>
+        /// <returns></returns>
         public static string GetKOOK(bool res)
         {
             string chaine = "";
