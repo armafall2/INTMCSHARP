@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+
 class GestionnairesCompte
 {
     public int Identifiant { get; set; }
@@ -13,6 +14,7 @@ class GestionnairesCompte
     public GestionnairesCompte()
     {
         ListCompteBancaire = new List<CompteBancaire>();
+
     }
 
     public void AffGestionnaire()
@@ -23,7 +25,7 @@ class GestionnairesCompte
         {
             foreach (var compte in ListCompteBancaire)
             {
-                Console.WriteLine($"            Compte Id: {compte.Identifiant}, Solde: {compte.Solde}");
+                Console.WriteLine($"            Compte Id: {compte.AffCompte()}");
             }
         }
         else
@@ -32,20 +34,80 @@ class GestionnairesCompte
         }
         Console.WriteLine(" ");
     }
-
-    public void AddCompteToGestionnaire(CompteBancaire compte)
+    public bool AddCompteToGestionnaire(CompteBancaire compte)
     {
         if (!ListCompteBancaire.Any(c => c.Identifiant == compte.Identifiant))
         {
             ListCompteBancaire.Add(compte);
             Console.WriteLine($"Le compte bancaire (ID: {compte.Identifiant}) a été ajouté au gestionnaire (ID: {Identifiant}).");
+            Console.WriteLine(" ");
+            return true;
+            
         }
         else
         {
             Console.WriteLine($"Le compte bancaire (ID: {compte.Identifiant}) est déjà présent dans le gestionnaire (ID: {Identifiant}).");
+            Console.WriteLine(" ");
+            return false; 
         }
-        Console.WriteLine(" ");
+        
     }
+    public bool RemoveCompteFromGestion(CompteBancaire compte)
+    {
+        if (ListCompteBancaire.Contains(compte))
+        {
+            ListCompteBancaire.Remove(compte);
+            Console.WriteLine($"Le compte bancaire (ID: {compte.Identifiant}) a été retiré du gestionnaire (ID: {Identifiant}).");
+            Console.WriteLine(" ");
+            return true;
+        }
+        else
+        {
+            Console.WriteLine($"Le compte bancaire (ID: {compte.Identifiant}) n'est pas présent dans le gestionnaire (ID: {Identifiant}).");
+            Console.WriteLine(" ");
+            return false;
+        }
+    }
+    public void CederCompte(GestionnairesCompte gestionnaireCible, CompteBancaire compte)
+    {
+        if (ListCompteBancaire.Contains(compte))
+        {
+            if (gestionnaireCible != null)
+            {
+                // Retirer le compte du gestionnaire actuel
+                ListCompteBancaire.Remove(compte);
+                Console.WriteLine($"Le compte (ID: {compte.Identifiant}) a été cédé au gestionnaire cible (ID: {gestionnaireCible.Identifiant}).");
+
+                // Ajouter le compte au gestionnaire cible
+                gestionnaireCible.AddCompteToGestionnaire(compte);
+            }
+            else
+            {
+                Console.WriteLine("Le gestionnaire cible n'existe pas.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Impossible de céder le compte. Vérifiez s'il appartient au gestionnaire actuel et s'il est actif.");
+        }
+    }
+    public void ReceptionnerCompte(GestionnairesCompte gestionnaireEmetteur, CompteBancaire compte)
+    {
+        if (gestionnaireEmetteur != null && gestionnaireEmetteur.ListCompteBancaire.Contains(compte))
+        {
+            // Retirer le compte du gestionnaire émetteur
+            gestionnaireEmetteur.ListCompteBancaire.Remove(compte);
+            Console.WriteLine($"Le compte (ID: {compte.Identifiant}) a été réceptionné du gestionnaire émetteur (ID: {gestionnaireEmetteur.Identifiant}).");
+
+            // Ajouter le compte au gestionnaire actuel
+            AddCompteToGestionnaire(compte);
+        }
+        else
+        {
+            Console.WriteLine("Impossible de réceptionner le compte. Vérifiez s'il appartient au gestionnaire émetteur.");
+        }
+    }
+
 }
 class ListageGestionnaireCompte
 {
@@ -161,7 +223,9 @@ class ListageTransaction
         }
     }
 }
-
+/// <summary>
+/// ID DATE SOLDE ENTRER SORTIE
+/// </summary>
 class CompteBancaire
 {
     public int Identifiant { get; set; }
@@ -190,6 +254,11 @@ class CompteBancaire
             Console.WriteLine(element);
         }
     }
+
+    public string AffCompte()
+    {
+        return ($"{Identifiant} {DateEffet} {Solde} {Entrer} {sortie} \n");
+    }
 }
 
 class ListageCompteBancaire
@@ -203,9 +272,6 @@ class ListageCompteBancaire
 
     public bool CreateBankAccount(int dernierIdentifiant, DateTime date, decimal montantInitial, int? entre, int? sortie)
     {
-
-
-
         if (montantInitial < 0)
         {
             Console.WriteLine("Solde nul");
@@ -236,7 +302,6 @@ class ListageCompteBancaire
             nouveauCompte.Entrer = entre;
             nouveauCompte.sortie = sortie;
         }
-
         listeCompteBancaires.Add(nouveauCompte);
         return true;
     }
@@ -252,6 +317,16 @@ class ListageCompteBancaire
     public CompteBancaire GetCompteById(int identifiant)
     {
         return listeCompteBancaires.FirstOrDefault(t => t.Identifiant == identifiant);
+        
     }
 
+    public List<CompteBancaire> GetComptesByIdNotUn(int identifiant)
+    {
+        return listeCompteBancaires.Where(t => t.Identifiant == identifiant).ToList();
+    }
+
+    public List<CompteBancaire> GetCompteBancaireList()
+    {
+        return listeCompteBancaires;
+    }
 }

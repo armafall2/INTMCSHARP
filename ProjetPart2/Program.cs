@@ -49,7 +49,7 @@ namespace ProjetPart2
                     #endregion
 
                     int cpt = 0;
-
+                    int cptCompte = 0;
                     #region Main
                     if (File.Exists(mngrPath) && File.Exists(oprtPath) && File.Exists(trxnPath))
                     {
@@ -142,18 +142,22 @@ namespace ProjetPart2
 
                                 else if (string.IsNullOrEmpty(stk[3]) && int.TryParse(stk[4], out SortieValue))
                                 {
-
+                                    
                                     listageCompteBancaire.CreateBankAccount(id, tmp, montant, null, SortieValue);
+
+                                    cptCompte++;
                                 }
 
                                 else if (string.IsNullOrEmpty(stk[4]) && int.TryParse(stk[3], out EntreValue))
                                 {
                                     listageCompteBancaire.CreateBankAccount(id, tmp, montant, EntreValue, null);
+                                    cptCompte++;
                                 }
 
                                 else if (int.TryParse(stk[3], out EntreValue) && int.TryParse(stk[4], out SortieValue))
                                 {
                                     listageCompteBancaire.CreateBankAccount(id, tmp, montant, EntreValue, SortieValue);
+                                    cptCompte++;
                                 }
 
                                 else
@@ -175,12 +179,12 @@ namespace ProjetPart2
                                 Console.WriteLine("Erreur : " + res);
                             }
                         }
-                        listageCompteBancaire.AffCompte();
+                        
                         Console.WriteLine(" ");
                         #endregion
 
-
-                        // Assumez que vous avez déjà créé un gestionnaire et un compte
+                        #region Test Ajout dans Gestionnaire
+                        /*
 
                         for (int w = 0; w < cpt; w++)
                         {
@@ -189,8 +193,64 @@ namespace ProjetPart2
 
                             gestio.AddCompteToGestionnaire(compt);
                             gestio.AffGestionnaire();
+                        }/**/
+                        #endregion
+
+                        listageCompteBancaire.AffCompte();
+
+                        string res2 = " ";
+
+                        for (int z = 0; z < cptCompte; z++)
+                        {
+                            List<CompteBancaire> comptesTrouves = listageCompteBancaire.GetComptesByIdNotUn(z+1);
+
+                            foreach(CompteBancaire element in comptesTrouves)
+                            {
+                                int id = element.Identifiant;
+                                
+                                int? entrer = element.Entrer;
+                                int? sortie = element.sortie;
+
+                                if (element.sortie == null && element.Entrer.HasValue)
+                                {
+                                    res2 += $"Add to {element.Entrer}      : {element.AffCompte()}";
+                                    GestionnairesCompte gestio = listageGestionnaireCompte.GetGestionnaireById((int)entrer);
+                                    gestio.AddCompteToGestionnaire(element);
+
+                                }
+
+                                else if (element.Entrer == null && element.sortie.HasValue)
+                                {
+                                    res2 += $"Delete from {element.sortie} : {element.AffCompte()}";
+                                    GestionnairesCompte gestio = listageGestionnaireCompte.GetGestionnaireById((int)sortie);
+                                    CompteBancaire compt = listageCompteBancaire.GetCompteById(id);
+                                    gestio.RemoveCompteFromGestion(compt);
+                                }
+                                
+                                else if(element.sortie.HasValue && element.Entrer.HasValue)
+                                {
+                                    res2 += $"Transfere : {element.AffCompte()}";
+                                    GestionnairesCompte gestio = listageGestionnaireCompte.GetGestionnaireById((int)sortie);
+                                    gestio.AddCompteToGestionnaire(element);
+                                    gestio = listageGestionnaireCompte.GetGestionnaireById((int)entrer);
+                                    CompteBancaire compt = listageCompteBancaire.GetCompteById(id);
+                                    gestio.RemoveCompteFromGestion(compt);
+                                }
+
+                                
+                                
+                            }
+                        }
+                        Console.Write(res2);
+
+                        for (int w = 0; w < cpt; w++)
+                        {
+                            GestionnairesCompte gestio = listageGestionnaireCompte.GetGestionnaireById(w + 1);
+                            CompteBancaire compt = listageCompteBancaire.GetCompteById(w + 1);
+                            gestio.AffGestionnaire();
                         }
 
+                        
 
 
 
