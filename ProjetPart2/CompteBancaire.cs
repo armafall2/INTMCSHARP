@@ -8,6 +8,7 @@ class GestionnairesCompte
     public string Type { get; set; }
     public int nbrTransac { get; set; }
 
+
 }
 class ListageGestionnaireCompte
 {
@@ -20,8 +21,6 @@ class ListageGestionnaireCompte
 
     public bool CreateGestionnaire(int identifiant, string type, int nbrTransac)
     {
-   
-
         if (gestionnairesComptes.Any(c => c.Identifiant == identifiant))
         {
             Console.WriteLine("Le gestionnaire avec l'identifiant spécifié existe déjà.");
@@ -48,9 +47,10 @@ class ListageGestionnaireCompte
         foreach(var element in gestionnairesComptes)
         {
             Console.WriteLine($"Gestionnaire : Id : {element.Identifiant} Type : {element.Type} nbTransac : {element.nbrTransac}");
-        }
-            
+        }    
     }
+
+
 }
 
 class Transaction

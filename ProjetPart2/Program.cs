@@ -28,25 +28,29 @@ namespace ProjetPart2
                     string sttsTrxnPath = path + $@"\StatutTra_{i}.txt";
                     string mtrlPath = path + $@"\Metrologie_{i}.txt";
                     #endregion
+
+                    #region Declarative Stream Reader/Writer
                     StreamReader gestionFile = new StreamReader(mngrPath);
                     StreamReader comptesFile = new StreamReader(oprtPath);
                     StreamReader transactionsFile = new StreamReader(trxnPath);
                     StreamWriter sttOperFile = new StreamWriter(sttsOprtPath);
                     StreamWriter sttTranFile = new StreamWriter(sttsTrxnPath);
                     StreamWriter metroloFile = new StreamWriter(mtrlPath);
+                    #endregion
 
-
+                    #region Declarative Objet
                     ListageGestionnaireCompte listageGestionnaireCompte = new ListageGestionnaireCompte();
                     ListageTransaction listageTransaction = new ListageTransaction();
                     Transaction transaction = new Transaction();
-
                     ListageCompteBancaire listageCompteBancaire = new ListageCompteBancaire();
                     CompteBancaire compteBancaire = new CompteBancaire();
-
+                    #endregion
+                    
+                    
                     #region Main
                     if (File.Exists(mngrPath) && File.Exists(oprtPath) && File.Exists(trxnPath))
                     {
-
+                        #region Ajout Fichier Gestion
                         while (!gestionFile.EndOfStream)
                         {
                             string line = gestionFile.ReadLine();
@@ -59,9 +63,10 @@ namespace ProjetPart2
 
                         }
                         listageGestionnaireCompte.AffGestionnaire();
-
                         Console.WriteLine(" ");
-
+                        #endregion
+                        
+                        #region Ajout Fichier Transaction
                         while (!transactionsFile.EndOfStream)
                         {
 
@@ -89,9 +94,10 @@ namespace ProjetPart2
 
                         }
                         listageTransaction.AfficheTransac();
-
                         Console.WriteLine(" ");
-
+                        #endregion
+                        
+                        #region Ajout Fichier Comptes
                         while (!comptesFile.EndOfStream)
                         {
                             string line = comptesFile.ReadLine();
@@ -99,52 +105,51 @@ namespace ProjetPart2
                             string res = "";
                             DateTime tmp = DateTime.Now;
                             decimal montant = 0;
-                            int expValue = 0;
-                            int destValue = 0;
+                            int EntreValue = 0;
+                            int SortieValue = 0;
 
                             if (stk.Length == 5 &&
                                 int.TryParse(stk[0], out int id) &&
                                 DateTime.TryParse(stk[1], out tmp) &&
                                 decimal.TryParse(stk[2], out montant))
                             {
-                                int? exp = null;
-                                if (!int.TryParse(stk[3], out expValue))
-                                {
-                                    Console.WriteLine($"Erreur : La valeur pour Entrer n'est pas un nombre valide.");
 
+                                if(string.IsNullOrEmpty(stk[3]) && string.IsNullOrEmpty(stk[4]))
+                                {
+                                    Console.WriteLine("Les deux valeurs ne peuvent pas être null");
                                 }
+
+                                else if (string.IsNullOrEmpty(stk[3]) && !int.TryParse(stk[4], out SortieValue))
+                                {
+                                    Console.WriteLine("Le paramètre de sortie est incorrecte");
+                                }
+                                else if (string.IsNullOrEmpty(stk[4]) && !int.TryParse(stk[3], out EntreValue))
+                                {
+                                    Console.WriteLine("Le paramètre d'entrer est incorrecte");
+                                }
+
+                                else if (string.IsNullOrEmpty(stk[3]) && int.TryParse(stk[4], out SortieValue)){
+
+                                    listageCompteBancaire.CreateBankAccount(id, tmp, montant, null, SortieValue);
+                                }
+
+                                else if (string.IsNullOrEmpty(stk[4]) && int.TryParse(stk[3], out EntreValue)){
+                                    listageCompteBancaire.CreateBankAccount(id, tmp, montant, EntreValue, null);
+                                }
+
+                                else if(int.TryParse(stk[3], out EntreValue) && int.TryParse(stk[4], out SortieValue))
+                                {
+                                    listageCompteBancaire.CreateBankAccount(id, tmp, montant, EntreValue, SortieValue);
+                                }
+
                                 else
                                 {
-                                    if (string.IsNullOrEmpty(stk[3]))
+                                    for (int k = 0; k < stk.Length; k++)
                                     {
-                                        exp = null;
+                                        res += stk[k] + ";";
                                     }
-                                    else
-                                    {
-                                        exp = expValue;
-                                    }
-                                    
+                                    Console.WriteLine("Erreur : " + res);
                                 }
-
-                                int? dest = null;
-                                if (!int.TryParse(stk[4], out destValue))
-                                {
-                                    Console.WriteLine($"Erreur : La valeur pour Sortie n'est pas un nombre valide.");
-                                }
-                                else
-                                {
-                                    if (string.IsNullOrEmpty(stk[4]))
-                                    {
-                                        dest = null;
-                                    }
-                                    else
-                                    {
-                                        dest = destValue;
-                                    }
-                                    
-                                }
-
-                                listageCompteBancaire.CreateBankAccount(id, tmp, montant, exp, dest);
 
                             }
                             else
@@ -155,35 +160,26 @@ namespace ProjetPart2
                                 }
                                 Console.WriteLine("Erreur : " + res);
                             }
-
-
-
                         }
-
-
                         listageCompteBancaire.AffCompte();
-
-
                         Console.WriteLine(" ");
-                    }
-                    #endregion
+                        #endregion
+                    
 
                     
+                    
+                    }
+
+                    
+                    #endregion
 
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Une exception s'est produite : {ex.Message}");
                 }
-
             }
             Console.ReadKey();
-
-        }
-        public int? TryParseNullable(string val)
-        {
-            int outValue;
-            return int.TryParse(val, out outValue) ? (int?)outValue : null;
         }
 
     }
