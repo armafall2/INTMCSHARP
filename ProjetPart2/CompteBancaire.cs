@@ -154,14 +154,13 @@ class ListageGestionnaireCompte
     }
 
 }
-
 class Transaction
 {
     public int Identifiant { get; set; }
     public DateTime DateEffet {get; set;}
     public decimal Montant { get; set; }
-    public int? Expediteur { get; set; }
-    public int? Destinataire { get; set; }
+    public int Expediteur { get; set; }
+    public int Destinataire { get; set; }
 
     public void AffUneTransac(Transaction transac)
     {
@@ -187,7 +186,7 @@ class ListageTransaction
         }
         else
         {
-           
+
             Transaction nouvelleTransaction = new Transaction
             {
                 Identifiant = identifiant,
@@ -200,6 +199,64 @@ class ListageTransaction
             transactions.Add(nouvelleTransaction);
             return true;
         }
+    }
+    public string NatureOfTransac(Transaction transac)
+        {
+            string res = "";
+
+            if (transac != null)
+            {
+                int exp = transac.Expediteur;
+
+                int dest = transac.Destinataire;
+
+                if (exp == 0 && dest != 0)
+                {
+                    res = "dep";
+                }
+                else if (exp != 0 && dest == 0)
+                {
+                    res = "wit";
+                }
+                else if (exp != 0 && dest != 0)
+                {
+                    res = "vir";
+                }
+                else if (exp == 0 && dest == 0)
+                {
+                    res = "error";
+                }
+            }
+            return res;
+        }
+    public bool IsPossible(Transaction transac, ListageCompteBancaire gestionComptes, string code)
+    {
+        CompteBancaire exp = gestionComptes.GetCompteById(transac.Expediteur);
+        CompteBancaire dest = gestionComptes.GetCompteById(transac.Destinataire);
+        switch (code)
+        {
+            case "dep":
+                if (dest != null && transac.Montant > 0)
+                {
+                    return true;
+                }
+                break;
+
+            case "wit":
+                if (exp != null && exp.Solde >= transac.Montant && exp.EstRetraitAutorise(transac.Montant))
+                {
+                    return true;
+                }
+                break;
+
+            case "vir":
+                if (exp != null && dest != null && transac.Montant > 0 && exp.Solde >= transac.Montant && exp.EstRetraitAutorise(transac.Montant))
+                {
+                    return true;
+                }
+                break;
+        }
+        return false;
     }
 
     public Transaction GetTransactionById(int identifiant)
@@ -222,7 +279,50 @@ class ListageTransaction
             Console.WriteLine($"Liste transaction vide.");
         }
     }
-}
+
+    public bool DoTransac(Transaction transaction, ListageCompteBancaire gestionCompte, string code)
+    {
+        bool res = false;
+        if (transaction != null)
+        {
+            CompteBancaire exp = gestionCompte.GetCompteById(transaction.Expediteur);
+            CompteBancaire dest = gestionCompte.GetCompteById(transaction.Destinataire);
+
+            switch (code)
+            {
+                case "dep":
+                    if (IsPossible(transaction, gestionCompte, code))
+                    {
+                        gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
+                        res = true;
+                    }
+                    break;
+
+                case "wit":
+                    if (IsPossible(transaction, gestionCompte, code))
+                    {
+                        gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
+                        exp.AjouterRetrait(transaction.Montant);
+                        res = true;
+                    }
+                    break;
+
+                case "vir":
+                    if (IsPossible(transaction, gestionCompte, code))
+                    {
+                        gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
+                        gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
+                        exp.AjouterRetrait(transaction.Montant);
+                        res = true;
+                    }
+                    break;
+            }
+        }
+        return res;
+    }
+
+} 
+
 /// <summary>
 /// ID DATE SOLDE ENTRER SORTIE
 /// </summary>
@@ -257,10 +357,20 @@ class CompteBancaire
 
     public string AffCompte()
     {
-        return ($"{Identifiant} {DateEffet} {Solde} {Entrer} {sortie} \n");
+        return ($"{Identifiant} {DateEffet} {Solde} {Entrer} {sortie}");
+    }
+
+    internal bool EstRetraitAutorise(decimal montant)
+    {
+        if (derniersRetraits.Count >= 10)
+        {
+            derniersRetraits.RemoveAt(0);
+        }
+
+        decimal sommeDerniersRetraits = derniersRetraits.Sum();
+        return (sommeDerniersRetraits + montant) <= 1000;
     }
 }
-
 class ListageCompteBancaire
 {
     List<CompteBancaire> listeCompteBancaires;
@@ -274,7 +384,7 @@ class ListageCompteBancaire
     {
         if (montantInitial < 0)
         {
-            Console.WriteLine("Solde nul");
+            Console.WriteLine("Solde Incorect : " + montantInitial);
             return false;
         }
         if(date == null)
@@ -287,7 +397,7 @@ class ListageCompteBancaire
         if (montantInitial.Equals(null) || montantInitial == 0)
         {
             nouveauCompte.Identifiant = dernierIdentifiant;
-            nouveauCompte.Solde = 0;
+            nouveauCompte.Solde = 0000;
             nouveauCompte.DateEffet = date;
             nouveauCompte.Entrer = entre;
             nouveauCompte.sortie = sortie;
