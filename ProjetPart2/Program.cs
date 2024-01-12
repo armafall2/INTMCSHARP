@@ -44,9 +44,12 @@ namespace ProjetPart2
                     Transaction transaction = new Transaction();
                     ListageCompteBancaire listageCompteBancaire = new ListageCompteBancaire();
                     CompteBancaire compteBancaire = new CompteBancaire();
+                    GestionnairesCompte gestionnairesCompte = new GestionnairesCompte();
+
                     #endregion
-                    
-                    
+
+                    int cpt = 0;
+
                     #region Main
                     if (File.Exists(mngrPath) && File.Exists(oprtPath) && File.Exists(trxnPath))
                     {
@@ -58,14 +61,18 @@ namespace ProjetPart2
 
                             if (int.TryParse(stk[0], out int id) && (stk[1] == "Particulier" || stk[1] == "Entreprise") && int.TryParse(stk[2], out int nbrTransac) && nbrTransac >= 0)
                             {
-                                listageGestionnaireCompte.CreateGestionnaire(id, stk[1], nbrTransac);
-                            }
 
+                                listageGestionnaireCompte.CreateGestionnaire(id, stk[1], nbrTransac);
+                                cpt++;
+                            }
                         }
+
+
                         listageGestionnaireCompte.AffGestionnaire();
+
                         Console.WriteLine(" ");
                         #endregion
-                        
+
                         #region Ajout Fichier Transaction
                         while (!transactionsFile.EndOfStream)
                         {
@@ -96,7 +103,7 @@ namespace ProjetPart2
                         listageTransaction.AfficheTransac();
                         Console.WriteLine(" ");
                         #endregion
-                        
+
                         #region Ajout Fichier Comptes
                         while (!comptesFile.EndOfStream)
                         {
@@ -108,13 +115,18 @@ namespace ProjetPart2
                             int EntreValue = 0;
                             int SortieValue = 0;
 
+                            if (string.IsNullOrEmpty(stk[2]))
+                            {
+                                stk[2] = "0";
+                            }
+
                             if (stk.Length == 5 &&
                                 int.TryParse(stk[0], out int id) &&
                                 DateTime.TryParse(stk[1], out tmp) &&
                                 decimal.TryParse(stk[2], out montant))
                             {
 
-                                if(string.IsNullOrEmpty(stk[3]) && string.IsNullOrEmpty(stk[4]))
+                                if (string.IsNullOrEmpty(stk[3]) && string.IsNullOrEmpty(stk[4]))
                                 {
                                     Console.WriteLine("Les deux valeurs ne peuvent pas être null");
                                 }
@@ -128,16 +140,18 @@ namespace ProjetPart2
                                     Console.WriteLine("Le paramètre d'entrer est incorrecte");
                                 }
 
-                                else if (string.IsNullOrEmpty(stk[3]) && int.TryParse(stk[4], out SortieValue)){
+                                else if (string.IsNullOrEmpty(stk[3]) && int.TryParse(stk[4], out SortieValue))
+                                {
 
                                     listageCompteBancaire.CreateBankAccount(id, tmp, montant, null, SortieValue);
                                 }
 
-                                else if (string.IsNullOrEmpty(stk[4]) && int.TryParse(stk[3], out EntreValue)){
+                                else if (string.IsNullOrEmpty(stk[4]) && int.TryParse(stk[3], out EntreValue))
+                                {
                                     listageCompteBancaire.CreateBankAccount(id, tmp, montant, EntreValue, null);
                                 }
 
-                                else if(int.TryParse(stk[3], out EntreValue) && int.TryParse(stk[4], out SortieValue))
+                                else if (int.TryParse(stk[3], out EntreValue) && int.TryParse(stk[4], out SortieValue))
                                 {
                                     listageCompteBancaire.CreateBankAccount(id, tmp, montant, EntreValue, SortieValue);
                                 }
@@ -164,14 +178,26 @@ namespace ProjetPart2
                         listageCompteBancaire.AffCompte();
                         Console.WriteLine(" ");
                         #endregion
-                    
 
-                    
-                    
+
+                        // Assumez que vous avez déjà créé un gestionnaire et un compte
+
+                        for (int w = 0; w < cpt; w++)
+                        {
+                            GestionnairesCompte gestio = listageGestionnaireCompte.GetGestionnaireById(w+1);
+                            CompteBancaire compt = listageCompteBancaire.GetCompteById(w+1);
+
+                            gestio.AddCompteToGestionnaire(compt);
+                            gestio.AffGestionnaire();
+                        }
+
+
+
+
+                        #endregion
                     }
 
-                    
-                    #endregion
+
 
                 }
                 catch (Exception ex)
@@ -180,7 +206,9 @@ namespace ProjetPart2
                 }
             }
             Console.ReadKey();
+            
         }
+
 
     }
 }

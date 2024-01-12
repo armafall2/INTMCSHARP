@@ -8,7 +8,44 @@ class GestionnairesCompte
     public string Type { get; set; }
     public int nbrTransac { get; set; }
 
+    public List<CompteBancaire> ListCompteBancaire;
 
+    public GestionnairesCompte()
+    {
+        ListCompteBancaire = new List<CompteBancaire>();
+    }
+
+    public void AffGestionnaire()
+    {
+        Console.WriteLine($"{Identifiant} {Type} {nbrTransac}");
+
+        if (ListCompteBancaire.Any())
+        {
+            foreach (var compte in ListCompteBancaire)
+            {
+                Console.WriteLine($"            Compte Id: {compte.Identifiant}, Solde: {compte.Solde}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Aucun compte dans la liste.");
+        }
+        Console.WriteLine(" ");
+    }
+
+    public void AddCompteToGestionnaire(CompteBancaire compte)
+    {
+        if (!ListCompteBancaire.Any(c => c.Identifiant == compte.Identifiant))
+        {
+            ListCompteBancaire.Add(compte);
+            Console.WriteLine($"Le compte bancaire (ID: {compte.Identifiant}) a été ajouté au gestionnaire (ID: {Identifiant}).");
+        }
+        else
+        {
+            Console.WriteLine($"Le compte bancaire (ID: {compte.Identifiant}) est déjà présent dans le gestionnaire (ID: {Identifiant}).");
+        }
+        Console.WriteLine(" ");
+    }
 }
 class ListageGestionnaireCompte
 {
@@ -41,7 +78,6 @@ class ListageGestionnaireCompte
         }
         return false;
     }
-
     public void AffGestionnaire()
     {
         foreach(var element in gestionnairesComptes)
@@ -50,6 +86,10 @@ class ListageGestionnaireCompte
         }    
     }
 
+    public GestionnairesCompte GetGestionnaireById(int identifiant)
+    {
+        return gestionnairesComptes.FirstOrDefault(t => t.Identifiant == identifiant);
+    }
 
 }
 
@@ -164,11 +204,7 @@ class ListageCompteBancaire
     public bool CreateBankAccount(int dernierIdentifiant, DateTime date, decimal montantInitial, int? entre, int? sortie)
     {
 
-        if (listeCompteBancaires.Any(c => c.Identifiant == dernierIdentifiant))
-        {
-            Console.WriteLine("Le compte avec l'identifiant spécifié existe déjà.");
-            return false;
-        }
+
 
         if (montantInitial < 0)
         {
@@ -211,6 +247,11 @@ class ListageCompteBancaire
         {
             Console.WriteLine($"Id : {element.Identifiant}, Date : {element.DateEffet}, montant : {element.Solde}, Entrer : {element.Entrer} Sortie : {element.sortie}");
         }
+    }
+
+    public CompteBancaire GetCompteById(int identifiant)
+    {
+        return listeCompteBancaires.FirstOrDefault(t => t.Identifiant == identifiant);
     }
 
 }
