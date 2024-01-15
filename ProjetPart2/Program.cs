@@ -49,13 +49,13 @@ namespace ProjetPart2
                     #region Main
                     if (File.Exists(mngrPath) && File.Exists(oprtPath) && File.Exists(trxnPath))
                     {
-                        using (var gestionFile = new StreamReader(mngrPath)) 
+                        using (var gestionFile = new StreamReader(mngrPath))
                         using (var comptesFile = new StreamReader(oprtPath))
                         using (var transactionsFile = new StreamReader(trxnPath))
                         using (var sttOperFile = new StreamWriter(sttsOprtPath))
                         using (var sttTranFile = new StreamWriter(sttsTrxnPath))
                         using (var metroloFile = new StreamWriter(mtrlPath))
-                        { 
+                        {
                             {
                                 #region Ajout Fichier Gestion
                                 while (!gestionFile.EndOfStream)
@@ -63,7 +63,7 @@ namespace ProjetPart2
                                     string line = gestionFile.ReadLine();
                                     string[] stk = line.Split(';');
 
-                                    if (int.TryParse(stk[0], out int id) && (stk[1] == "Particulier" || stk[1] == "Entreprise") && int.TryParse(stk[2], out int nbrTransac) && nbrTransac >= 0)
+                                    if (int.TryParse(stk[0], out int id) && (stk[1] == "Particulier" || stk[1] == "Entreprise") && int.TryParse(stk[2], out int nbrTransac) && nbrTransac > 0)
                                     {
                                         listageGestionnaireCompte.CreateGestionnaire(id, stk[1], nbrTransac);
                                         cpt++;
@@ -199,7 +199,7 @@ namespace ProjetPart2
                                         {
                                             GestionnairesCompte gestio = listageGestionnaireCompte.GetGestionnaireById((int)entrer);
                                             res2 += $"{element.AffCompte()} {GetKOOK(gestio.AddCompteToGestionnaire(element))}\n";
-                                            
+
                                             compteurNbCompte++;
                                             compteurNbReussi++;
                                         }
@@ -208,7 +208,7 @@ namespace ProjetPart2
                                             GestionnairesCompte gestio = listageGestionnaireCompte.GetGestionnaireById((int)sortie);
                                             CompteBancaire compt = listageCompteBancaire.GetCompteById(id);
                                             res2 += $"{element.AffCompte()} {GetKOOK(gestio.RemoveCompteFromGestion(compt))}\n";
-                                            
+
                                             compteurNbCompte--;
                                             compteurNbReussi++;
                                         }
@@ -227,7 +227,7 @@ namespace ProjetPart2
                                             if (!resBoolAdd && resBoolDel)
                                             {
                                                 tmp = $"{element.AffCompte()} {GetKOOK(true)}\n";
-                                                
+
                                                 compteurNbCompte++;
 
                                             }
@@ -257,43 +257,55 @@ namespace ProjetPart2
 
                                 #region Affichage des Gestionnaires
                                 for (int w = 0; w < cpt; w++)
-                                {               
+                                {
                                     GestionnairesCompte gestio = listageGestionnaireCompte.GetGestionnaireById(w + 1);
-                                    gestio.AffGestionnaire();
+                                    if (gestio != null)
+                                        gestio.AffGestionnaire();
 
                                 }
                                 #endregion
 
                                 #region Typage des Comptes après opération sur compte
-                                ListageCompteBancaire listCompteTypé = new ListageCompteBancaire()
-                                
+                                ListageCompteBancaire listCompteTypé = new ListageCompteBancaire();
+
                                 for (int w = 0; w < cpt; w++)
                                 {
-                                    GestionnairesCompte gestio = listageGestionnaireCompte.GetGestionnaireById(w + 1);
-                                    List<CompteBancaire> listeCompteTemporaire = gestio.GetCompteBancaireList();
 
-                                    foreach(var element in listeCompteTemporaire)
+                                    GestionnairesCompte gestio = listageGestionnaireCompte.GetGestionnaireById(w + 1);
+
+                                    if (gestio != null)
                                     {
-                                        listCompteTypé.CreateBankAccount(element.Identifiant, element.DateEffet, element.Solde, element.Entrer, element.sortie);
-                                        
-                                        if (gestio.Type == "Particulier")
+
+                                        List<CompteBancaire> listeCompteTemporaire = gestio.GetCompteBancaireList();
+                                        foreach (var element in listeCompteTemporaire)
                                         {
-                                            listCompteTypé.GetCompteById(element.Identifiant).type = gestio.Type;
-                                            listCompteTypé.GetCompteById(element.Identifiant).gestio = gestio.Identifiant;
-                                        }
-                                        else if (gestio.Type == "Entreprise")
-                                        {
-                                            listCompteTypé.GetCompteById(element.Identifiant).type = gestio.Type;
-                                            listCompteTypé.GetCompteById(element.Identifiant).gestio = gestio.Identifiant;
+                                            listCompteTypé.CreateBankAccount(element.Identifiant, element.DateEffet, element.Solde, element.Entrer, element.sortie);
+
+                                            if (gestio.Type == "Particulier")
+                                            {
+                                                listCompteTypé.GetCompteById(element.Identifiant).type = gestio.Type;
+                                                listCompteTypé.GetCompteById(element.Identifiant).gestio = gestio.Identifiant;
+                                            }
+                                            else if (gestio.Type == "Entreprise")
+                                            {
+                                                listCompteTypé.GetCompteById(element.Identifiant).type = gestio.Type;
+                                                listCompteTypé.GetCompteById(element.Identifiant).gestio = gestio.Identifiant;
+                                            }
+                                            else
+                                            {
+                                                compteurNbEchecs++;
+                                            }
                                         }
                                     }
                                 }
                                 #endregion
 
                                 #region Réalisation des transactions si elle sont possible
-                                listCompteTypé.AffCompte();
 
-                                listageTransaction.AfficheTransac();
+                                listCompteTypé.AffCompte();
+                                //listageTransaction.AfficheTransac();
+
+                                string contentTranFile = "";
 
                                 for (int boucleTransaction = 0; boucleTransaction < listageTransaction.nbDeTransac(); boucleTransaction++)
                                 {
@@ -305,33 +317,44 @@ namespace ProjetPart2
                                     {
                                         bool resDoTransac = listageTransaction.DoTransac(transactionAVerifier, listCompteTypé, codeOpe, listageGestionnaireCompte.GetGestionnaireById(transactionAVerifier.Expediteur));
                                         MontantTotalReussite += transactionAVerifier.Montant;
+
+                                        contentTranFile += $"{transactionAVerifier.Identifiant} {transactionAVerifier.DateEffet} {transactionAVerifier.Montant} {transactionAVerifier.Expediteur} {transactionAVerifier.Destinataire} {GetKOOK(resDoTransac)}\n";
+                                        compteurNbReussi++;
+                                    }
+                                    else
+                                    {
+                                        contentTranFile += $"{transactionAVerifier.Identifiant} {transactionAVerifier.DateEffet} {transactionAVerifier.Montant} {transactionAVerifier.Expediteur} {transactionAVerifier.Destinataire} {GetKOOK(false)}\n";
+                                        compteurNbEchecs++;
                                     }
 
                                 }
-
+                                //listCompteTypé.AffCompte();
+                                Console.WriteLine(contentTranFile);
+                                Console.WriteLine(" ");
+                                #endregion
 
                                 listCompteTypé.AffCompte();
 
-                                Console.WriteLine(" ");
-                                #endregion
-                                
                                 #region Création Fichier Métrologie
                                 string contentStat = "";
                                 contentStat += $"Statistiques: \n" +
                                     $"Nombre de comptes: {compteurNbCompte}\n" +
-                                    $"Nombre de transactions : {compteurNbTransa - 1}\n" +
-                                    $"Nombre de réussites : {compteurNbReussi - 1}\n" +
+                                    $"Nombre de transactions : {compteurNbTransa}\n" +
+                                    $"Nombre de réussites : {compteurNbReussi}\n" +
                                     $"Nombre d'échecs : {compteurNbEchecs + CompterOccurrences(res2, "KO")}\n" +
-                                    $"Montant total des réussites : {MontantTotalReussite} euros\n" +
+                                    $"Montant total des réussites : {MontantTotalReussite } euros\n" +
                                     $"Frais De Gestion\n";
-                                
+
                                 for (int w = 0; w < cpt; w++)
                                 {
                                     GestionnairesCompte gestionnairesCompte1 = listageGestionnaireCompte.GetGestionnaireById(w + 1);
-                                    
-                                    string TitreGestio = ($"Identifiant du gestio : {gestionnairesCompte1.Identifiant} | Frais : {gestionnairesCompte1.totalFrais}\n");
 
-                                    contentStat += TitreGestio;
+                                    if (gestionnairesCompte1 != null)
+                                    {
+                                        string TitreGestio = ($"Identifiant du gestio : {gestionnairesCompte1.Identifiant} | Frais : {gestionnairesCompte1.totalFrais}\n");
+
+                                        contentStat += TitreGestio;
+                                    }
                                 }
 
 
@@ -339,14 +362,18 @@ namespace ProjetPart2
                                 metroloFile.WriteLine(contentStat);
                                 #endregion
 
+                                #region Fermeture des fichiers
                                 gestionFile.Close();
                                 comptesFile.Close();
                                 transactionsFile.Close();
                                 sttOperFile.Close();
                                 sttTranFile.Close();
                                 metroloFile.Close();
+                                #endregion
 
+                                #region Pansement sinon boucle infini
                                 break;
+                                #endregion
                             }
                         }
                     }

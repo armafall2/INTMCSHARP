@@ -501,7 +501,7 @@ class CompteBancaire
         }
     }
 
-    class ListageCompteBancaire
+class ListageCompteBancaire
     {
         List<CompteBancaire> listeCompteBancaires;
 
