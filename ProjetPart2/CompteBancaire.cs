@@ -5,18 +5,19 @@ using System.Linq;
 
 class GestionnairesCompte
 {
+
     public int Identifiant { get; set; }
     public string Type { get; set; }
     public int nbrTransac { get; set; }
-
     public List<CompteBancaire> ListCompteBancaire;
+    public decimal totalFrais { get; set; }
+
 
     public GestionnairesCompte()
     {
         ListCompteBancaire = new List<CompteBancaire>();
 
     }
-
     public void AffGestionnaire()
     {
         Console.WriteLine($"{Identifiant} {Type} {nbrTransac}");
@@ -300,6 +301,7 @@ class ListageTransaction
         }
     public bool IsPossible(Transaction transac, ListageCompteBancaire gestionComptes, string code)
     {
+
         CompteBancaire exp = gestionComptes.GetCompteById(transac.Expediteur);
         CompteBancaire dest = gestionComptes.GetCompteById(transac.Destinataire);
 
@@ -314,7 +316,7 @@ class ListageTransaction
                 break;
 
             case "wit":
-                if (exp != null && exp.Solde >= transac.Montant && exp.EstRetraitAutorise((transac.Montant),exp.DateEffet,transac.DateEffet))
+                if (exp != null && exp.Solde >= transac.Montant && exp.EstRetraitAutorise((transac.Montant), exp.DateEffet, transac.DateEffet))
                 {
                     return true;
                 }
@@ -328,6 +330,7 @@ class ListageTransaction
                 break;
         }
         return false;
+    
     }
     public Transaction GetTransactionById(int identifiant)
     {
@@ -352,12 +355,13 @@ class ListageTransaction
     {
         return transactions.Count();
     }
-    public bool DoTransac(Transaction transaction, ListageCompteBancaire gestionCompte, string code)
+    public bool DoTransac(Transaction transaction, ListageCompteBancaire gestionCompte, string code, GestionnairesCompte gestionnaire)
     {
         bool res = false;
+        decimal frais = 0;
+
         if (transaction != null)
         {
-
             CompteBancaire exp = gestionCompte.GetCompteById(transaction.Expediteur);
             CompteBancaire dest = gestionCompte.GetCompteById(transaction.Destinataire);
 
@@ -383,18 +387,24 @@ class ListageTransaction
                 case "vir":
                     if (IsPossible(transaction, gestionCompte, code))
                     {
+                        if (exp.type == "Entreprise" && exp.gestio != dest.gestio)
+                            frais = 10;
+
+                        if (exp.type == "Particulier" && exp.gestio != dest.gestio)
+                            frais = transaction.Montant * 0.01M;
+
                         gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
-                        gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
+                        gestionCompte.Deposit(dest.Identifiant, transaction.Montant - frais);
                         exp.AjouterRetrait(transaction.Montant);
+
                         res = true;
+                        gestionnaire.totalFrais += frais;
                     }
                     break;
-
             }
         }
-        
+
         return res;
-        
     }
 
 
@@ -473,7 +483,7 @@ class CompteBancaire
 
     internal void AjouterRetrait(decimal montant)
     {
-        /*Transaction lastRetrait = new Transaction();
+        Transaction lastRetrait = new Transaction();
 
         if (derniersRetraits.Any())
         {
@@ -488,9 +498,9 @@ class CompteBancaire
         lastRetrait.Montant = montant;
 
         derniersRetraits.Add(lastRetrait);
-        }*/
+        }
     }
-}
+
     class ListageCompteBancaire
     {
         List<CompteBancaire> listeCompteBancaires;

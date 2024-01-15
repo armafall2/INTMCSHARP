@@ -264,8 +264,9 @@ namespace ProjetPart2
                                 }
                                 #endregion
 
-                                ListageCompteBancaire listCompteTypé = new ListageCompteBancaire();
-
+                                #region Typage des Comptes après opération sur compte
+                                ListageCompteBancaire listCompteTypé = new ListageCompteBancaire()
+                                
                                 for (int w = 0; w < cpt; w++)
                                 {
                                     GestionnairesCompte gestio = listageGestionnaireCompte.GetGestionnaireById(w + 1);
@@ -287,59 +288,56 @@ namespace ProjetPart2
                                         }
                                     }
                                 }
-                                
-                                
+                                #endregion
+
+                                #region Réalisation des transactions si elle sont possible
                                 listCompteTypé.AffCompte();
 
                                 listageTransaction.AfficheTransac();
-                                
-                                for(int boucleTransaction = 0; boucleTransaction < listageTransaction.nbDeTransac(); boucleTransaction++)
+
+                                for (int boucleTransaction = 0; boucleTransaction < listageTransaction.nbDeTransac(); boucleTransaction++)
                                 {
-                                    //listageTransaction.GetTransactionById(boucleTransaction + 1).AffUneTransac(listageTransaction.GetTransactionById(boucleTransaction + 1));
                                     Transaction transactionAVerifier = listageTransaction.GetTransactionById(boucleTransaction + 1);
                                     string codeOpe = listageTransaction.NatureOfTransac(transactionAVerifier);
 
                                     bool resIsPossible = listageTransaction.IsPossible(transactionAVerifier, listCompteTypé, codeOpe);
-                                    if(listageTransaction.IsPossible(transactionAVerifier, listCompteTypé, codeOpe))
+                                    if (listageTransaction.IsPossible(transactionAVerifier, listCompteTypé, codeOpe))
                                     {
-                                        bool resDoTransac = listageTransaction.DoTransac(transactionAVerifier, listCompteTypé, codeOpe);
+                                        bool resDoTransac = listageTransaction.DoTransac(transactionAVerifier, listCompteTypé, codeOpe, listageGestionnaireCompte.GetGestionnaireById(transactionAVerifier.Expediteur));
+                                        MontantTotalReussite += transactionAVerifier.Montant;
                                     }
+
                                 }
+
+
                                 listCompteTypé.AffCompte();
-                                /* foreach(var element in listCompteTypé.GetCompteBancaireList())
-                                 {
-
-                                 }
-                                /**/
-
-
 
                                 Console.WriteLine(" ");
-
+                                #endregion
+                                
+                                #region Création Fichier Métrologie
                                 string contentStat = "";
-
                                 contentStat += $"Statistiques: \n" +
                                     $"Nombre de comptes: {compteurNbCompte}\n" +
                                     $"Nombre de transactions : {compteurNbTransa - 1}\n" +
                                     $"Nombre de réussites : {compteurNbReussi - 1}\n" +
                                     $"Nombre d'échecs : {compteurNbEchecs + CompterOccurrences(res2, "KO")}\n" +
-                                    $"Montant total des réussites : {MontantTotalReussite} euros\n";
+                                    $"Montant total des réussites : {MontantTotalReussite} euros\n" +
+                                    $"Frais De Gestion\n";
+                                
+                                for (int w = 0; w < cpt; w++)
+                                {
+                                    GestionnairesCompte gestionnairesCompte1 = listageGestionnaireCompte.GetGestionnaireById(w + 1);
+                                    
+                                    string TitreGestio = ($"Identifiant du gestio : {gestionnairesCompte1.Identifiant} | Frais : {gestionnairesCompte1.totalFrais}\n");
+
+                                    contentStat += TitreGestio;
+                                }
 
 
                                 Console.WriteLine(contentStat);
-
-
-
-
-
-
-
-
-
-
-
-
-
+                                metroloFile.WriteLine(contentStat);
+                                #endregion
 
                                 gestionFile.Close();
                                 comptesFile.Close();
@@ -359,10 +357,6 @@ namespace ProjetPart2
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Une exception s'est produite : {ex.Message}");
-                }
-                finally
-                {
-                    
                 }
             }
             Console.ReadKey();

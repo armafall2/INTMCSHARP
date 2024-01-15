@@ -402,5 +402,46 @@ namespace ProjetPart1
             }
             return res;
         }
+     public bool DoTransac(Transaction transaction, GestionCompteBancaire gestionCompte, string code)
+        {
+            bool res = false;
+            if(transaction != null) {
+            CompteBancaire exp = gestionCompte.GetCompteById(transaction.Expediteur);
+            CompteBancaire dest = gestionCompte.GetCompteById(transaction.Destinataire);
+
+            switch (code)
+            {
+                case "dep":
+                    if (IsPossible(transaction, gestionCompte, code))
+                    {
+                        gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
+                        res = true;
+                    }
+                    break;
+
+                case "wit":
+                    if (IsPossible(transaction, gestionCompte, code))
+                    {
+                        gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
+                        exp.AjouterRetrait(transaction.Montant); 
+                        res = true;
+                    }
+                    break;
+
+                case "vir":
+                    if (IsPossible(transaction, gestionCompte, code))
+                    {
+                        gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
+                        gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
+                        exp.AjouterRetrait(transaction.Montant);
+                        res = true;
+                    }
+                    break;
+
+            }
+            }
+            return res;
+        }
+    
     }
 }
