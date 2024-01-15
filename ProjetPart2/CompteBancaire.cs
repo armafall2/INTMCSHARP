@@ -302,6 +302,8 @@ class ListageTransaction
     {
         CompteBancaire exp = gestionComptes.GetCompteById(transac.Expediteur);
         CompteBancaire dest = gestionComptes.GetCompteById(transac.Destinataire);
+
+
         switch (code)
         {
             case "dep":
@@ -312,14 +314,14 @@ class ListageTransaction
                 break;
 
             case "wit":
-                if (exp != null && exp.Solde >= transac.Montant && exp.EstRetraitAutorise(transac.Montant))
+                if (exp != null && exp.Solde >= transac.Montant && exp.EstRetraitAutorise((transac.Montant),exp.DateEffet,transac.DateEffet))
                 {
                     return true;
                 }
                 break;
 
             case "vir":
-                if (exp != null && dest != null && transac.Montant > 0 && exp.Solde >= transac.Montant && exp.EstRetraitAutorise(transac.Montant))
+                if (exp != null && dest != null && transac.Montant > 0 && exp.Solde >= transac.Montant && exp.EstRetraitAutorise((transac.Montant), exp.DateEffet, transac.DateEffet))
                 {
                     return true;
                 }
@@ -327,12 +329,10 @@ class ListageTransaction
         }
         return false;
     }
-
     public Transaction GetTransactionById(int identifiant)
     {
         return transactions.FirstOrDefault(t => t.Identifiant == identifiant);
     }
-
     public void AfficheTransac()
     {
         int cpt = 0;
@@ -348,12 +348,57 @@ class ListageTransaction
             Console.WriteLine($"Liste transaction vide.");
         }
     }
-
    public int nbDeTransac()
     {
         return transactions.Count();
     }
-} 
+    public bool DoTransac(Transaction transaction, ListageCompteBancaire gestionCompte, string code)
+    {
+        bool res = false;
+        if (transaction != null)
+        {
+
+            CompteBancaire exp = gestionCompte.GetCompteById(transaction.Expediteur);
+            CompteBancaire dest = gestionCompte.GetCompteById(transaction.Destinataire);
+
+            switch (code)
+            {
+                case "dep":
+                    if (IsPossible(transaction, gestionCompte, code))
+                    {
+                        gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
+                        res = true;
+                    }
+                    break;
+
+                case "wit":
+                    if (IsPossible(transaction, gestionCompte, code))
+                    {
+                        gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
+                        exp.AjouterRetrait(transaction.Montant);
+                        res = true;
+                    }
+                    break;
+
+                case "vir":
+                    if (IsPossible(transaction, gestionCompte, code))
+                    {
+                        gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
+                        gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
+                        exp.AjouterRetrait(transaction.Montant);
+                        res = true;
+                    }
+                    break;
+
+            }
+        }
+        
+        return res;
+        
+    }
+
+
+}
 
 /// <summary>
 /// ID DATE SOLDE ENTRER SORTIE
@@ -368,7 +413,7 @@ class CompteBancaire
     public string type { get; set; }
     public int gestio { get; set; }
 
-    public List<decimal> derniersRetraits = new List<decimal>();
+    public List<Transaction> derniersRetraits = new List<Transaction>();
 
     public CompteBancaire()
     {
@@ -394,84 +439,168 @@ class CompteBancaire
         return ($"{Identifiant} {DateEffet} {Solde} {Entrer} {sortie}");
     }
 
-    internal bool EstRetraitAutorise(decimal montant)
+    internal bool EstRetraitAutorise(decimal montant, DateTime dateCrea, DateTime dateTransac)
     {
+        bool dateKOOK = false;
+        bool montantKOOK = false;
+        bool res = false;
+
+        decimal sommeDerniersRetraits = 0;
+
         if (derniersRetraits.Count >= 10)
         {
             derniersRetraits.RemoveAt(0);
         }
 
-        decimal sommeDerniersRetraits = derniersRetraits.Sum();
-        return (sommeDerniersRetraits + montant) <= 1000;
-    }
-}
-class ListageCompteBancaire
-{
-    List<CompteBancaire> listeCompteBancaires;
-
-    public ListageCompteBancaire()
-    {
-        listeCompteBancaires = new List<CompteBancaire>();
-    }
-
-    public bool CreateBankAccount(int dernierIdentifiant, DateTime date, decimal montantInitial, int? entre, int? sortie)
-    {
-        if (montantInitial < 0)
+        foreach (var element in derniersRetraits)
         {
-            Console.WriteLine("Solde Incorect : " + montantInitial);
-            return false;
+            sommeDerniersRetraits += element.Montant;
         }
-        if(date == null)
+
+        if (sommeDerniersRetraits <= 2000)
+            montantKOOK = true;
+
+        if (dateCrea <= dateTransac)
+            dateKOOK = true;
+
+        if ((dateKOOK && montantKOOK))
         {
-            Console.WriteLine("Date nul");
-            return false;
+            res = true;
         }
-        CompteBancaire nouveauCompte = new CompteBancaire();
 
-        if (montantInitial.Equals(null) || montantInitial == 0)
+        return res;
+    }
+
+    internal void AjouterRetrait(decimal montant)
+    {
+        /*Transaction lastRetrait = new Transaction();
+
+        if (derniersRetraits.Any())
         {
-            nouveauCompte.Identifiant = dernierIdentifiant;
-            nouveauCompte.Solde = 0000;
-            nouveauCompte.DateEffet = date;
-            nouveauCompte.Entrer = entre;
-            nouveauCompte.sortie = sortie;
-
-
+            lastRetrait.Identifiant = derniersRetraits.Last().Identifiant + 1;
         }
         else
         {
-            nouveauCompte.Identifiant = dernierIdentifiant;
-            nouveauCompte.Solde = montantInitial;
-            nouveauCompte.DateEffet = date;
-            nouveauCompte.Entrer = entre;
-            nouveauCompte.sortie = sortie;
+            lastRetrait.Identifiant = 1;
         }
-        listeCompteBancaires.Add(nouveauCompte);
-        return true;
-    }
-    
-    public void AffCompte()
-    {
-        foreach(var element in listeCompteBancaires)
-        {
-            Console.WriteLine($"Id : {element.Identifiant}, Date : {element.DateEffet}, montant : {element.Solde}, Entrer : {element.Entrer} Sortie : {element.sortie} Type : {element.type} Gestio : {element.gestio}");
-        }
-    }
 
-    public CompteBancaire GetCompteById(int identifiant)
-    {
-        return listeCompteBancaires.FirstOrDefault(t => t.Identifiant == identifiant);
-        
-    }
 
-    public List<CompteBancaire> GetComptesByIdNotUn(int identifiant)
-    {
-        return listeCompteBancaires.Where(t => t.Identifiant == identifiant).ToList();
-    }
+        lastRetrait.Montant = montant;
 
-    public List<CompteBancaire> GetCompteBancaireList()
-    {
-        return listeCompteBancaires;
+        derniersRetraits.Add(lastRetrait);
+        }*/
     }
 }
+    class ListageCompteBancaire
+    {
+        List<CompteBancaire> listeCompteBancaires;
+
+        public ListageCompteBancaire()
+        {
+            listeCompteBancaires = new List<CompteBancaire>();
+        }
+
+        public bool CreateBankAccount(int dernierIdentifiant, DateTime date, decimal montantInitial, int? entre, int? sortie)
+        {
+            if (montantInitial < 0)
+            {
+                Console.WriteLine("Solde Incorect : " + montantInitial);
+                return false;
+            }
+            if (date == null)
+            {
+                Console.WriteLine("Date nul");
+                return false;
+            }
+            CompteBancaire nouveauCompte = new CompteBancaire();
+
+            if (montantInitial.Equals(null) || montantInitial == 0)
+            {
+                nouveauCompte.Identifiant = dernierIdentifiant;
+                nouveauCompte.Solde = 0000;
+                nouveauCompte.DateEffet = date;
+                nouveauCompte.Entrer = entre;
+                nouveauCompte.sortie = sortie;
+
+
+            }
+            else
+            {
+                nouveauCompte.Identifiant = dernierIdentifiant;
+                nouveauCompte.Solde = montantInitial;
+                nouveauCompte.DateEffet = date;
+                nouveauCompte.Entrer = entre;
+                nouveauCompte.sortie = sortie;
+            }
+            listeCompteBancaires.Add(nouveauCompte);
+            return true;
+        }
+
+        public void AffCompte()
+        {
+            foreach (var element in listeCompteBancaires)
+            {
+                Console.WriteLine($"Id : {element.Identifiant}, Date : {element.DateEffet}, montant : {element.Solde}, Entrer : {element.Entrer} Sortie : {element.sortie} Type : {element.type} Gestio : {element.gestio}");
+            }
+        }
+
+        public CompteBancaire GetCompteById(int identifiant)
+        {
+            return listeCompteBancaires.FirstOrDefault(t => t.Identifiant == identifiant);
+
+        }
+
+        public List<CompteBancaire> GetComptesByIdNotUn(int identifiant)
+        {
+            return listeCompteBancaires.Where(t => t.Identifiant == identifiant).ToList();
+        }
+
+        public List<CompteBancaire> GetCompteBancaireList()
+        {
+            return listeCompteBancaires;
+        }
+
+        public bool Deposit(int identifiant, decimal montant)
+        {
+            CompteBancaire compte = GetCompteById(identifiant);
+
+            if (compte != null)
+            {
+                compte.Solde += montant;
+                return true;
+            }
+            else
+            {
+                Console.WriteLine($"Le compte avec l'identifiant {identifiant} n'existe pas.");
+                return false;
+            }
+        }
+
+        public bool Withdraw(int identifiant, decimal montant)
+        {
+            CompteBancaire compte = GetCompteById(identifiant);
+
+
+            if (compte != null)
+            {
+                if (compte.Solde >= montant)
+                {
+                    compte.Solde -= montant;
+
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("Solde insuffisant ou retrait non autorisé.");
+                    return false;
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Le compte avec l'identifiant {identifiant} n'existe pas.");
+                return false;
+            }
+        }
+    }
+
 

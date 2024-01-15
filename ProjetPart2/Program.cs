@@ -291,6 +291,7 @@ namespace ProjetPart2
                                 
                                 listCompteTypé.AffCompte();
 
+                                listageTransaction.AfficheTransac();
                                 
                                 for(int boucleTransaction = 0; boucleTransaction < listageTransaction.nbDeTransac(); boucleTransaction++)
                                 {
@@ -299,15 +300,17 @@ namespace ProjetPart2
                                     string codeOpe = listageTransaction.NatureOfTransac(transactionAVerifier);
 
                                     bool resIsPossible = listageTransaction.IsPossible(transactionAVerifier, listCompteTypé, codeOpe);
-                                    Console.Write(resIsPossible + " ");
-                                    transactionAVerifier.AffUneTransac(transactionAVerifier);
+                                    if(listageTransaction.IsPossible(transactionAVerifier, listCompteTypé, codeOpe))
+                                    {
+                                        bool resDoTransac = listageTransaction.DoTransac(transactionAVerifier, listCompteTypé, codeOpe);
+                                    }
                                 }
+                                listCompteTypé.AffCompte();
+                                /* foreach(var element in listCompteTypé.GetCompteBancaireList())
+                                 {
 
-                               /* foreach(var element in listCompteTypé.GetCompteBancaireList())
-                                {
-                                   
-                                }
-                               /**/
+                                 }
+                                /**/
 
 
 
