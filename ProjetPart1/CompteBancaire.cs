@@ -289,9 +289,7 @@ namespace ProjetPart1
 
             if(transac != null)
             {
-                
-            
-
+             
             int exp = transac.Expediteur;
 
             int dest = transac.Destinataire;

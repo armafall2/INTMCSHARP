@@ -107,7 +107,76 @@ class GestionnairesCompte
             Console.WriteLine("Impossible de réceptionner le compte. Vérifiez s'il appartient au gestionnaire émetteur.");
         }
     }
+    public void TransferAccount(int id, int entrer, int sortie, ListageGestionnaireCompte listageGestionnaireCompte, ListageCompteBancaire listageCompteBancaire)
+    {
+        CompteBancaire compte = listageCompteBancaire.GetCompteById(id);
 
+        if (compte != null)
+        {
+            GestionnairesCompte gestionnaireEntrer = listageGestionnaireCompte.GetGestionnaireById(entrer);
+            GestionnairesCompte gestionnaireSortie = listageGestionnaireCompte.GetGestionnaireById(sortie);
+
+            if (gestionnaireEntrer != null && gestionnaireSortie != null && gestionnaireEntrer != gestionnaireSortie)
+            {
+                bool canTransfer = CanTransferAccount(compte, gestionnaireEntrer, gestionnaireSortie);
+
+                if (canTransfer)
+                {
+                    gestionnaireSortie.CederCompte(gestionnaireEntrer, compte);
+                    Console.WriteLine($"Le compte (ID: {compte.Identifiant}) a été transféré du gestionnaire {gestionnaireEntrer.Identifiant} au gestionnaire {gestionnaireSortie.Identifiant}.");
+                }
+                else
+                {
+                    Console.WriteLine($"Impossible de transférer le compte (ID: {compte.Identifiant}). Vérifiez les conditions.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Gestionnaire d'entrée, gestionnaire de sortie, ou les deux ne sont pas valides.");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Le compte (ID: {id}) n'existe pas.");
+        }
+    }
+    private bool CanTransferAccount(CompteBancaire compte, GestionnairesCompte gestionnaireEntrer, GestionnairesCompte gestionnaireSortie)
+    {
+        if (compte.Entrer == gestionnaireEntrer.Identifiant && compte.sortie == gestionnaireSortie.Identifiant)
+        {
+            Console.WriteLine("Impossible de transférer un compte du même gestionnaire à lui-même.");
+            return false;
+        }
+        else if (compte.Entrer.HasValue && compte.sortie.HasValue)
+        {
+            Console.WriteLine("Impossible de transférer un compte présent à la fois dans l'entrée et la sortie.");
+            return false;
+        }
+        else if (compte.Entrer.HasValue && !compte.sortie.HasValue)
+        {
+           
+            return true;
+        }
+        else if (!compte.Entrer.HasValue && compte.sortie.HasValue)
+        {
+           
+            Console.WriteLine("Impossible de transférer un compte présent dans la sortie mais pas dans l'entrée.");
+            return false;
+        }
+
+        return false;
+    }
+
+    public CompteBancaire GetCompteById(int identifiant)
+    {
+        return ListCompteBancaire.FirstOrDefault(t => t.Identifiant == identifiant);
+
+    }
+
+    public List<CompteBancaire> GetCompteBancaireList()
+    {
+        return ListCompteBancaire;
+    }
 }
 class ListageGestionnaireCompte
 {
@@ -280,47 +349,10 @@ class ListageTransaction
         }
     }
 
-    public bool DoTransac(Transaction transaction, ListageCompteBancaire gestionCompte, string code)
+   public int nbDeTransac()
     {
-        bool res = false;
-        if (transaction != null)
-        {
-            CompteBancaire exp = gestionCompte.GetCompteById(transaction.Expediteur);
-            CompteBancaire dest = gestionCompte.GetCompteById(transaction.Destinataire);
-
-            switch (code)
-            {
-                case "dep":
-                    if (IsPossible(transaction, gestionCompte, code))
-                    {
-                        gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
-                        res = true;
-                    }
-                    break;
-
-                case "wit":
-                    if (IsPossible(transaction, gestionCompte, code))
-                    {
-                        gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
-                        exp.AjouterRetrait(transaction.Montant);
-                        res = true;
-                    }
-                    break;
-
-                case "vir":
-                    if (IsPossible(transaction, gestionCompte, code))
-                    {
-                        gestionCompte.Withdraw(exp.Identifiant, transaction.Montant);
-                        gestionCompte.Deposit(dest.Identifiant, transaction.Montant);
-                        exp.AjouterRetrait(transaction.Montant);
-                        res = true;
-                    }
-                    break;
-            }
-        }
-        return res;
+        return transactions.Count();
     }
-
 } 
 
 /// <summary>
@@ -333,6 +365,8 @@ class CompteBancaire
     public decimal Solde { get; set; }
     public int? Entrer { get; set; }
     public int? sortie { get; set; }
+    public string type { get; set; }
+    public int gestio { get; set; }
 
     public List<decimal> derniersRetraits = new List<decimal>();
 
@@ -420,7 +454,7 @@ class ListageCompteBancaire
     {
         foreach(var element in listeCompteBancaires)
         {
-            Console.WriteLine($"Id : {element.Identifiant}, Date : {element.DateEffet}, montant : {element.Solde}, Entrer : {element.Entrer} Sortie : {element.sortie}");
+            Console.WriteLine($"Id : {element.Identifiant}, Date : {element.DateEffet}, montant : {element.Solde}, Entrer : {element.Entrer} Sortie : {element.sortie} Type : {element.type} Gestio : {element.gestio}");
         }
     }
 
@@ -440,3 +474,4 @@ class ListageCompteBancaire
         return listeCompteBancaires;
     }
 }
+
