@@ -71,7 +71,6 @@ namespace ProjetPart2
 
                                 /**/
 
-
                                 #region Ajout Fichier Gestion
                                 while (!gestionFile.EndOfStream)
                                 {
@@ -218,7 +217,6 @@ namespace ProjetPart2
                                 string res2 = "";
                                 for (int z = 0; z < cptCompte; z++)
                                 {
-
                                     List<CompteBancaire> comptesTrouves = listageCompteBancaire.GetComptesByIdNotUn(z+1);
 
                                     foreach (CompteBancaire element in comptesTrouves)
@@ -227,7 +225,6 @@ namespace ProjetPart2
                                         int id = element.Identifiant;
                                         int? entrer = element.Entrer;
                                         int? sortie = element.sortie;
-
 
                                         if (element.sortie == null && element.Entrer.HasValue)
                                         {
