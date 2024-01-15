@@ -302,6 +302,7 @@ class ListageTransaction
     public bool IsPossible(Transaction transac, ListageCompteBancaire gestionComptes, string code)
     {
 
+        if(transac != null) { 
         CompteBancaire exp = gestionComptes.GetCompteById(transac.Expediteur);
         CompteBancaire dest = gestionComptes.GetCompteById(transac.Destinataire);
 
@@ -328,6 +329,7 @@ class ListageTransaction
                     return true;
                 }
                 break;
+        }
         }
         return false;
     
@@ -403,11 +405,8 @@ class ListageTransaction
                     break;
             }
         }
-
         return res;
     }
-
-
 }
 
 /// <summary>
